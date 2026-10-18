@@ -1,6 +1,6 @@
 {
     'name': 'Shop Integration API',
-    'version': '1.0.0',
+    'version': '18.0.1.0.0',
     'category': 'Sales/Integration',
     'summary': 'REST API para integración con tiendas externas (Catálogo y Pedidos)',
     'description': """
@@ -14,12 +14,10 @@
         'base',
         'product',
         'sale_management',
-        'stock'
+        'stock',
     ],
-    'data': [
-        
-    ],
+    'data': [],
     'installable': True,
-    'application': True,
+    'application': False,
     'license': 'LGPL-3',
 }
