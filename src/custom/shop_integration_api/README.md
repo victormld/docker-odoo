@@ -178,7 +178,7 @@ Cada petición a la API, exitosa o fallida, crea un registro en `shop.api.call.l
 Son 10 pruebas `HttpCase` que hacen peticiones HTTP reales contra el servidor de pruebas. Cubren:
 
 - Autenticación: sin clave y con clave inválida.
-- Listado de productos, cada filtro por separado y parámetros inválidos.
+- Listado de productos, filtros solos y combinados, y parámetros inválidos.
 - Creación del pedido y todos los errores de validación del cuerpo.
 - Usuario sin permisos de ventas: 403 y no se crea el pedido.
 - El registro de llamadas: qué guarda, que un fallo al guardarlo no rompe la respuesta y quién puede leerlo.
@@ -207,5 +207,5 @@ Durante las pruebas el `dbfilter` expone solo la base de prueba, porque la tiend
 - **Sin idempotencia:** si la tienda reintenta un POST, se crea otro pedido. `external_ref` no se valida como único.
 - **`modified_since` no detecta cambios de stock:** un movimiento de inventario no modifica la fecha del producto. Para sincronizar stock hay que pedir el catálogo completo.
 - **Listado sin paginar:** con catálogos grandes la respuesta crece sin límite. El stock se calcula en lote para todo el listado, pero no hay una prueba que mida el número de consultas.
-- **Huecos en las pruebas:** no hay una prueba de filtros combinados (el código los combina, pero las pruebas cubren cada filtro por separado), ni de `PRODUCT_AMBIGUOUS`, `BUSINESS_RULE_VIOLATION` e `INTERNAL_ERROR`.
+- **Huecos en las pruebas:** no hay pruebas de `PRODUCT_AMBIGUOUS`, `BUSINESS_RULE_VIOLATION` ni `INTERNAL_ERROR`.
 - **El registro de llamadas crece sin límite:** no hay limpieza automática de registros antiguos.

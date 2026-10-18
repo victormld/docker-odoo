@@ -36,12 +36,16 @@ class TestShopIntegrationAPI(HttpCase):
 
         cls.category = cls.env['product.category'].create({'name': 'API Padre'})
         child = cls.env['product.category'].create({'name': 'API Hija', 'parent_id': cls.category.id})
+        # Para probar los filtros combinados: uno cumple categoría y stock, y cada uno de
+        # los otros dos falla solo uno de los dos filtros
         cls.in_stock = cls._product('SHOPAPI-P1', list_price=100.0, categ_id=child.id)
-        cls.no_stock = cls._product('SHOPAPI-P2')
+        cls.no_stock = cls._product('SHOPAPI-P2', categ_id=child.id)
+        cls.other_category = cls._product('SHOPAPI-P5')
         cls.not_sellable = cls._product('SHOPAPI-P3', sale_ok=False)
         cls.archived = cls._product('SHOPAPI-P4', active=False)
         warehouse = cls.env['stock.warehouse'].search([('company_id', '=', cls.env.company.id)], limit=1)
         cls.env['stock.quant']._update_available_quantity(cls.in_stock, warehouse.lot_stock_id, 10.0)
+        cls.env['stock.quant']._update_available_quantity(cls.other_category, warehouse.lot_stock_id, 5.0)
 
         Partner = cls.env['res.partner']
         cls.customer = Partner.create({'name': 'Cliente Tienda', 'vat': RIF})
@@ -115,13 +119,19 @@ class TestShopIntegrationAPI(HttpCase):
         none = self.env['product.product']
         yesterday = fields.Date.to_string(fields.Date.today() - timedelta(days=1))
         tomorrow = (fields.Datetime.now() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S')
+        category = f'category_id={self.category.id}'
         cases = [
             # (query, deben aparecer, no deben aparecer)
-            ('?in_stock=true', self.in_stock, self.no_stock),
-            ('?in_stock=false', self.in_stock | self.no_stock, none),
-            (f'?category_id={self.category.id}', self.in_stock, self.no_stock),  # incluye subcategorías
+            ('?in_stock=true', self.in_stock | self.other_category, self.no_stock),
+            ('?in_stock=false', self.in_stock | self.no_stock | self.other_category, none),
+            (f'?{category}', self.in_stock | self.no_stock, self.other_category),  # incluye subcategorías
             (f'?modified_since={yesterday}', self.in_stock, none),
             (f'?modified_since={tomorrow}', none, self.in_stock),
+            # combinados: cada filtro descarta lo suyo
+            (f'?{category}&in_stock=true', self.in_stock, self.no_stock | self.other_category),
+            (f'?{category}&in_stock=true&modified_since={yesterday}', self.in_stock,
+             self.no_stock | self.other_category),
+            (f'?{category}&in_stock=true&modified_since={tomorrow}', none, self.in_stock),
         ]
         for query, included, excluded in cases:
             with self.subTest(query=query):
