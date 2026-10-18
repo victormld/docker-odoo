@@ -1,9 +1,11 @@
 import functools
 import json
 import logging
+import math
+from collections import defaultdict
 from datetime import datetime
 
-from odoo import fields, http
+from odoo import Command, fields, http
 from odoo.exceptions import AccessError, UserError
 from odoo.http import request
 
@@ -96,6 +98,30 @@ def parse_datetime(value, field):
                    field=field)
 
 
+def required_string(payload, key):
+    value = payload.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise ApiError(422, 'FIELD_REQUIRED', f'El campo {key} es obligatorio.', field=key)
+    return value.strip()
+
+
+def parse_line(index, raw):
+    """Valida la estructura de una línea. Los índices del campo son base 0."""
+    prefix = f'lines[{index}]'
+    if not isinstance(raw, dict):
+        raise ApiError(422, 'INVALID_LINE', 'Cada línea debe ser un objeto JSON.', field=prefix)
+    code = raw.get('default_code')
+    if not isinstance(code, str) or not code.strip():
+        raise ApiError(422, 'FIELD_REQUIRED', 'El código del producto es obligatorio.',
+                       field=f'{prefix}.default_code')
+    qty = raw.get('quantity')
+    # bool es subclase de int; NaN/Infinity los acepta json.loads de Python
+    if isinstance(qty, bool) or not isinstance(qty, (int, float)) or not math.isfinite(qty) or qty <= 0:
+        raise ApiError(422, 'INVALID_QUANTITY', 'La cantidad debe ser un número mayor que cero.',
+                       field=f'{prefix}.quantity')
+    return index, code.strip(), qty
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -134,7 +160,75 @@ class ShopIntegrationAPI(http.Controller):
         products = request.env['product.product'].search(domain, order='id')
         return json_response({'data': [self._serialize_product(p) for p in products]})
 
+    @http.route('/api/v1/orders', type='http', auth='public', methods=['POST'],
+                csrf=False, save_session=False)
+    @api_endpoint
+    def create_order(self, **kwargs):
+        payload = request.httprequest.get_json(force=True, silent=True)
+        if not isinstance(payload, dict):
+            raise ApiError(400, 'INVALID_JSON', 'El cuerpo de la petición debe ser un objeto JSON válido.')
+
+        # 1) Validar TODA la estructura antes de tocar la base de datos
+        rif = required_string(payload, 'customer_rif').upper()
+        external_ref = required_string(payload, 'external_ref')
+        raw_lines = payload.get('lines')
+        if not isinstance(raw_lines, list) or not raw_lines:
+            raise ApiError(422, 'FIELD_REQUIRED', 'Debe enviar al menos una línea de pedido.', field='lines')
+        lines = [parse_line(i, raw) for i, raw in enumerate(raw_lines)]
+
+        # 2) Resolver cliente y productos (una sola consulta para todos los productos)
+        partner = self._find_partner(rif)
+        resolved = self._find_products(lines)
+
+        # 3) Crear la cotización
+        order = request.env['sale.order'].create({
+            'partner_id': partner.id,
+            'client_order_ref': external_ref,
+            'origin': 'Tienda en línea',
+            'order_line': [
+                Command.create({'product_id': product.id, 'product_uom_qty': qty})
+                for product, qty in resolved
+            ],
+        })
+        return json_response({'data': self._serialize_order(order)}, status=201)
+
     # -- helpers ------------------------------------------------------------
+
+    @staticmethod
+    def _find_partner(rif):
+        # parent_id = False: el vat se sincroniza a los contactos hijos; queremos la ficha comercial
+        partners = request.env['res.partner'].search(
+            [('vat', '=', rif), ('parent_id', '=', False)], limit=2)
+        if not partners:
+            raise ApiError(422, 'CUSTOMER_NOT_FOUND', f'No existe un cliente con el RIF {rif}',
+                           field='customer_rif')
+        if len(partners) > 1:
+            raise ApiError(422, 'CUSTOMER_AMBIGUOUS', f'Hay más de un cliente con el RIF {rif}',
+                           field='customer_rif')
+        return partners
+
+    @staticmethod
+    def _find_products(lines):
+        codes = list({code for _index, code, _qty in lines})
+        found = defaultdict(list)
+        for product in request.env['product.product'].search([('default_code', 'in', codes)]):
+            found[product.default_code].append(product)
+
+        resolved = []
+        for index, code, qty in lines:
+            field = f'lines[{index}].default_code'
+            matches = found.get(code, [])
+            if not matches:
+                raise ApiError(422, 'PRODUCT_NOT_FOUND', f'No existe un producto con el código {code}',
+                               field=field)
+            if len(matches) > 1:
+                raise ApiError(422, 'PRODUCT_AMBIGUOUS', f'Hay más de un producto con el código {code}',
+                               field=field)
+            if not matches[0].sale_ok:
+                raise ApiError(422, 'PRODUCT_NOT_SELLABLE',
+                               f'El producto {code} no está disponible para la venta', field=field)
+            resolved.append((matches[0], qty))
+        return resolved
 
     @staticmethod
     def _serialize_product(product):
@@ -146,4 +240,23 @@ class ShopIntegrationAPI(http.Controller):
             'qty_available': product.qty_available,
             'category_id': product.categ_id.id or None,
             'write_date': fields.Datetime.to_string(product.write_date),
+        }
+
+    @staticmethod
+    def _serialize_order(order):
+        return {
+            'id': order.id,
+            'name': order.name,
+            'state': order.state,
+            'external_ref': order.client_order_ref,
+            'customer_rif': order.partner_id.vat,
+            'amount_untaxed': order.amount_untaxed,
+            'amount_total': order.amount_total,
+            'currency': order.currency_id.name,
+            'lines': [{
+                'default_code': line.product_id.default_code,
+                'quantity': line.product_uom_qty,
+                'price_unit': line.price_unit,
+                'subtotal': line.price_subtotal,
+            } for line in order.order_line],
         }
