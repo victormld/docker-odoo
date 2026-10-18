@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class ShopApiCallLog(models.Model):
@@ -18,3 +18,7 @@ class ShopApiCallLog(models.Model):
     duration_ms = fields.Integer(string='Duración (ms)', readonly=True)
     error_code = fields.Char(string='Código de error', readonly=True)
 
+    @api.depends('method', 'endpoint', 'status_code')
+    def _compute_display_name(self):
+        for log in self:
+            log.display_name = f'{log.method} {log.endpoint} ({log.status_code})'

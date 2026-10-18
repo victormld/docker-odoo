@@ -18,6 +18,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/shop_api_call_log_views.xml',
     ],
     'installable': True,
     'application': False,
