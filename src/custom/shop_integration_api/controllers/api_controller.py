@@ -1,72 +1,106 @@
 import json
+import logging
 from datetime import datetime
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
+_logger = logging.getLogger(__name__)
 
 class ShopIntegrationAPI(http.Controller):
 
-    @http.route('/api/v1/products', type='http', auth='user', methods=['GET'], csrf=False)
+    def _json_response(self, data, status=200):
+        """Genera respuestas JSON uniformes con el código HTTP correspondiente."""
+        headers = [('Content-Type', 'application/json')]
+        return request.make_response(json.dumps(data, default=str), headers=headers, status=status)
+
+    def _authenticate_request(self):
+        """Valida la API Key utilizando exclusivamente el sistema nativo de Odoo."""
+        api_key = request.httprequest.headers.get('X-Api-Key')
+        if not api_key:
+            auth_header = request.httprequest.headers.get('Authorization', '')
+            if auth_header.startswith('Bearer '):
+                api_key = auth_header.split(' ', 1)[1]
+
+        if not api_key:
+            return False, self._json_response({
+                'error': {'code': 'unauthorized', 'message': 'API Key ausente en la petición.'}
+            }, status=401)
+
+        # Validación estricta contra la base de datos (Hashes criptográficos)
+        user_id = request.env['res.users.apikeys'].sudo()._check_credentials(scope='rpc', key=api_key)
+        
+        if not user_id:
+            return False, self._json_response({
+                'error': {'code': 'unauthorized', 'message': 'API Key inválida o revocada.'}
+            }, status=401)
+            
+        # Adoptar la identidad de ese usuario en el entorno de Odoo
+        request.update_env(user=user_id)
+        return True, None
+
+    @http.route('/api/v1/products', type='http', auth='public', methods=['GET'], csrf=False)
     def get_products(self, **kwargs):
+        """Retorna el catálogo de productos activos filtrado y en stock."""
+        # Paso 1: Autenticar la petición
+        is_authenticated, error_response = self._authenticate_request()
+        if not is_authenticated:
+            return error_response
+
         try:
-            # 1. Dominio base estricto: Solo productos activos y habilitados para la venta
-            domain = [('active', '=', True), ('sale_ok', '=', True)]
-
-            # 2. Filtrado por categoría
-            category_id = kwargs.get('category_id')
-            if category_id:
-                try:
-                    domain.append(('categ_id', '=', int(category_id)))
-                except ValueError:
-                    return self._json_response({
-                        'error': {
-                            'code': 'invalid_category',
-                            'message': 'El parámetro category_id debe ser un número entero.'
-                        }
-                    }, status=400)
-
-            # 3. Filtrado por disponibilidad de stock
-            in_stock = kwargs.get('in_stock')
-            if in_stock and str(in_stock).lower() in ['true', '1']:
-                domain.append(('qty_available', '>', 0))
-
-            # 4. Filtrado por fecha de modificación (Trampa del Error 500 controlada)
+            domain = [('sale_ok', '=', True)]
+            
+            # Filtro por fecha de modificación
             modified_since = kwargs.get('modified_since')
             if modified_since:
                 try:
-                    valid_date = datetime.strptime(modified_since, '%Y-%m-%d')
-                    domain.append(('write_date', '>=', valid_date))
+                    dt = datetime.strptime(modified_since, '%Y-%m-%d')
+                    domain.append(('write_date', '>=', dt))
                 except ValueError:
                     return self._json_response({
                         'error': {
-                            'code': 'invalid_date_format',
-                            'message': 'El parámetro modified_since debe tener el formato YYYY-MM-DD.'
+                            'code': 'invalid_parameter',
+                            'message': 'Formato de fecha inválido. Use YYYY-MM-DD.'
                         }
                     }, status=400)
 
-            # 5. Búsqueda de productos en la base de datos
-            products = request.env['product.product'].search(domain)
+            # Filtro por categoría
+            category_id = kwargs.get('category_id')
+            if category_id:
+                if not category_id.isdigit():
+                    return self._json_response({
+                        'error': {
+                            'code': 'invalid_parameter',
+                            'message': 'El parámetro category_id debe ser un entero.'
+                        }
+                    }, status=400)
+                domain.append(('categ_id', '=', int(category_id)))
 
-            # 6. Formateo exacto de la salida solicitada
-            result = []
-            for product in products:
-                result.append({
-                    'id': product.id,
-                    'codigo': product.default_code or '',
-                    'nombre': product.name,
-                    'precio': product.list_price,
-                    'cantidad_disponible': product.qty_available,
-                })
+            products = request.env['product.template'].search(domain)
 
-            return self._json_response({'status': 'success', 'data': result}, status=200)
+            # Filtro en memoria para stock > 0
+            in_stock = kwargs.get('in_stock', '').lower() == 'true'
+            if in_stock:
+                products = products.filtered(lambda p: p.qty_available > 0)
+
+            data = [{
+                'id': p.id,
+                'name': p.name,
+                'list_price': p.list_price,
+                'qty_available': p.qty_available,
+                'categ_id': [p.categ_id.id, p.categ_id.name] if p.categ_id else False,
+                'write_date': fields.Datetime.to_string(p.write_date),
+            } for p in products]
+
+            return self._json_response({'data': data}, status=200)
 
         except Exception as e:
-            # Captura de seguridad o "catch-all" para cualquier otro error imprevisto
+            _logger.exception("Error en GET /api/v1/products")
             return self._json_response({
                 'error': {
                     'code': 'internal_server_error',
                     'message': str(e)
                 }
             }, status=500)
+        
 
     def _json_response(self, data, status=200):
         """Método auxiliar para devolver respuestas JSON nativas en controladores tipo 'http'."""
