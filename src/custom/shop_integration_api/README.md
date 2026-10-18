@@ -1,6 +1,6 @@
 # Shop Integration API
 
-API REST para que la tienda en línea del cliente consulte el catálogo con su stock y cree pedidos de venta en Odoo, sin intervención manual. Cada llamada queda en un registro de auditoría.
+API REST para que la tienda en línea del cliente consulte el catálogo con su stock y cree pedidos de venta en Odoo. Cada llamada queda en un registro de auditoría.
 
 - **Versión de Odoo:** 18.0
 - **Dependencias:** `product`, `sale_management`, `stock`
@@ -16,8 +16,8 @@ API REST para que la tienda en línea del cliente consulte el catálogo con su s
 ## Puesta en marcha
 
 1. **Instalar el módulo** en la base de datos del cliente.
-2. **Crear un usuario de integración** (usuario interno) con el permiso *Ventas: Usuario - solo sus documentos*. La API actúa con la identidad del dueño de la clave: se aplican sus permisos y reglas de registro. Un usuario sin permisos de ventas recibe 403 al crear un pedido.
-3. **Generar la API key**: con ese usuario, en *Preferencias › Seguridad de la cuenta › Nueva clave API*. Odoo la muestra una sola vez; se entrega a la tienda por un canal seguro y se revoca desde la misma pantalla.
+2. **Crear un usuario de integración** (usuario interno) con el permiso *Ventas: Usuario: Mostrar todos los documentos*. La API actúa con la identidad del dueño de la clave, así que se aplican sus permisos y reglas de registro. *Solo mostrar documentos propios* no alcanza: el pedido toma el vendedor asignado al cliente y, si es otra persona, Odoo no deja crearlo y la API responde 403.
+3. **Generar la API key**: entrando con ese usuario, en *Preferencias › Seguridad de la cuenta › Claves API › Nueva clave de API* (Odoo pide confirmar la contraseña). La clave se muestra una sola vez; se entrega a la tienda por un canal seguro y se revoca desde la misma pantalla. La clave de un usuario que no es administrador dura como máximo 3 meses: hay que generar otra antes de que venza o la tienda empezará a recibir 401.
 4. **Resolver una sola base por dominio.** La tienda no envía cookie de sesión, así que Odoo solo sabe qué base usar si el `dbfilter` deja exactamente una para el dominio de la petición (por ejemplo `^%d$` con un subdominio por base, o una sola base en el servidor). Si el filtro deja varias, toda ruta de la API responde 404.
 
 ## Referencia de la API
@@ -42,7 +42,7 @@ Lista los productos activos que se pueden vender (`sale_ok`). Cada variante es u
 |---|---|---|
 | `category_id` | entero | Productos de esa categoría y sus subcategorías. |
 | `in_stock` | `true`, `false`, `1` o `0` | Con `true` solo trae productos con cantidad disponible mayor que cero. `false` no filtra. |
-| `modified_since` | `AAAA-MM-DD`, `AAAA-MM-DDTHH:MM:SS` o `AAAA-MM-DD HH:MM:SS` (UTC) | Productos cuya variante o plantilla cambió en esa fecha o después (por ejemplo, un cambio de precio). |
+| `modified_since` | `AAAA-MM-DD`, `AAAA-MM-DDTHH:MM:SS` o `AAAA-MM-DD HH:MM:SS` (UTC) | Productos cuya variante o plantilla cambió en ese momento o después (por ejemplo, un cambio de precio). Una fecha sin hora cuenta desde las 00:00 UTC. |
 
 ```bash
 curl -H "Authorization: Bearer $API_KEY" \
@@ -67,7 +67,7 @@ Respuesta `200`:
 }
 ```
 
-- `price`: precio de venta de la ficha del producto, sin listas de precios.
+- `price`: precio de venta de la ficha del producto, más el extra de la variante si lo tiene. No aplica listas de precios.
 - `qty_available`: stock a mano en las ubicaciones internas.
 - `default_code` y `category_id` son `null` si el producto no los tiene.
 
@@ -179,7 +179,7 @@ Son 10 pruebas `HttpCase` que hacen peticiones HTTP reales contra el servidor de
 
 - Autenticación: sin clave y con clave inválida.
 - Listado de productos, filtros solos y combinados, y parámetros inválidos.
-- Creación del pedido y todos los errores de validación del cuerpo.
+- Creación del pedido y los errores de validación, salvo `PRODUCT_AMBIGUOUS`.
 - Usuario sin permisos de ventas: 403 y no se crea el pedido.
 - El registro de llamadas: qué guarda, que un fallo al guardarlo no rompe la respuesta y quién puede leerlo.
 
@@ -197,7 +197,7 @@ Durante las pruebas el `dbfilter` expone solo la base de prueba, porque la tiend
 - **El pedido queda como cotización.** Así ventas revisa precios, stock y condiciones antes de comprometer inventario. Confirmarlo automáticamente sería llamar a `action_confirm()` después de crearlo.
 - **Odoo es la fuente de verdad de los precios.** La tienda no envía precios; se aplican la lista de precios del cliente y los impuestos del producto.
 - **El RIF se compara tal cual** (solo mayúsculas y espacios en los extremos). `J-12345678-9` y `J123456789` son RIF distintos. Se busca en la ficha comercial del cliente, no en sus contactos, que heredan el RIF.
-- **El vendedor del pedido** es el asignado al cliente; si el cliente no tiene, queda el usuario de la API.
+- **El vendedor del pedido** es el asignado al cliente; si el cliente no tiene, queda el usuario de la API. Por eso el usuario de integración necesita ver todos los documentos de ventas (ver *Puesta en marcha*, paso 2).
 - **El código de producto** se compara exacto, distinguiendo mayúsculas y minúsculas (solo se ignoran los espacios en los extremos). Un producto archivado se trata como inexistente.
 - **Las cantidades** van en la unidad de venta del producto.
 
@@ -207,5 +207,5 @@ Durante las pruebas el `dbfilter` expone solo la base de prueba, porque la tiend
 - **Sin idempotencia:** si la tienda reintenta un POST, se crea otro pedido. `external_ref` no se valida como único.
 - **`modified_since` no detecta cambios de stock:** un movimiento de inventario no modifica la fecha del producto. Para sincronizar stock hay que pedir el catálogo completo.
 - **Listado sin paginar:** con catálogos grandes la respuesta crece sin límite. El stock se calcula en lote para todo el listado, pero no hay una prueba que mida el número de consultas.
-- **Huecos en las pruebas:** no hay pruebas de `PRODUCT_AMBIGUOUS`, `BUSINESS_RULE_VIOLATION` ni `INTERNAL_ERROR`.
+- **Huecos en las pruebas:** no hay pruebas de `PRODUCT_AMBIGUOUS`, `BUSINESS_RULE_VIOLATION` ni `INTERNAL_ERROR`, ni de un pedido para un cliente con vendedor asignado (las pruebas usan un cliente sin vendedor).
 - **El registro de llamadas crece sin límite:** no hay limpieza automática de registros antiguos.
