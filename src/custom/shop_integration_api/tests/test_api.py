@@ -1,95 +1,219 @@
 import json
+import re
+from datetime import timedelta
 from unittest.mock import patch
-from odoo.tests import HttpCase, tagged
 
-@tagged('post_install', '-at_install')
+from odoo import fields
+from odoo.tests import HttpCase, tagged
+from odoo.tests.common import get_db_name, new_test_user
+from odoo.tools import config
+
+RIF = 'J-12345678-9'
+AMBIGUOUS_RIF = 'J-99999999-9'
+
+
+def line(code='SHOPAPI-P1', quantity=1):
+    return {'default_code': code, 'quantity': quantity}
+
+
+def order(**overrides):
+    return {'customer_rif': RIF, 'external_ref': 'EXT-001', 'lines': [line(quantity=2)], **overrides}
+
+
+@tagged('-at_install', 'post_install', 'shop_integration_api')
 class TestShopIntegrationAPI(HttpCase):
 
-    def setUp(self):
-        super().setUp()
-        # 1. Crear categoría de prueba
-        self.category_1 = self.env['product.category'].create({'name': 'Categoría API 1'})
-        
-        # 2. Crear producto A
-        self.product_a = self.env['product.product'].create({
-            'name': 'Producto Test A',
-            'default_code': 'TEST-A',
-            'list_price': 150.0,
-            'categ_id': self.category_1.id,
-            'sale_ok': True,
-            'is_storable': True,  
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.classPatch(config, 'options', dict(config.options, dbfilter=f'^{re.escape(get_db_name())}$'))
+
+        cls.api_user = new_test_user(
+            cls.env, login='shop_api_user', groups='base.group_user,sales_team.group_sale_salesman')
+        cls.api_key = cls._api_key(cls.api_user)
+        # Usuario interno sin permisos de ventas: se autentica pero no puede crear pedidos
+        cls.no_sales_key = cls._api_key(new_test_user(cls.env, login='shop_api_no_sales'))
+
+        cls.category = cls.env['product.category'].create({'name': 'API Padre'})
+        child = cls.env['product.category'].create({'name': 'API Hija', 'parent_id': cls.category.id})
+        cls.in_stock = cls._product('SHOPAPI-P1', list_price=100.0, categ_id=child.id)
+        cls.no_stock = cls._product('SHOPAPI-P2')
+        cls.not_sellable = cls._product('SHOPAPI-P3', sale_ok=False)
+        cls.archived = cls._product('SHOPAPI-P4', active=False)
+        warehouse = cls.env['stock.warehouse'].search([('company_id', '=', cls.env.company.id)], limit=1)
+        cls.env['stock.quant']._update_available_quantity(cls.in_stock, warehouse.lot_stock_id, 10.0)
+
+        Partner = cls.env['res.partner']
+        cls.customer = Partner.create({'name': 'Cliente Tienda', 'vat': RIF})
+        # El vat se copia a los contactos hijos: no debe volver ambiguo el RIF
+        Partner.create({'name': 'Contacto Compras', 'parent_id': cls.customer.id})
+        Partner.create([{'name': 'Duplicado A', 'vat': AMBIGUOUS_RIF}, {'name': 'Duplicado B', 'vat': AMBIGUOUS_RIF}])
+
+    @classmethod
+    def _api_key(cls, user):
+        expiration = fields.Datetime.now() + timedelta(hours=12)
+        return cls.env['res.users.apikeys'].with_user(user)._generate('rpc', 'Tienda', expiration)
+
+    @classmethod
+    def _product(cls, code, **vals):
+        return cls.env['product.product'].create({
+            'name': code, 'default_code': code, 'type': 'consu', 'is_storable': True, **vals})
+
+    # -- helpers ------------------------------------------------------------
+
+    def _headers(self, key):
+        key = self.api_key if key is True else key
+        return {'Authorization': f'Bearer {key}'} if key else {}
+
+    def _get_products(self, query='', key=True):
+        return self.url_open(f'/api/v1/products{query}', headers=self._headers(key))
+
+    def _post_order(self, body, key=True):
+        data = body if isinstance(body, str) else json.dumps(body)
+        headers = {'Content-Type': 'application/json', **self._headers(key)}
+        return self.url_open('/api/v1/orders', data=data, headers=headers)
+
+    def _product_ids(self, query=''):
+        res = self._get_products(query)
+        self.assertEqual(res.status_code, 200, res.text)
+        return {product['id'] for product in res.json()['data']}
+
+    def _assert_error(self, res, status, code, field=None):
+        self.assertEqual(res.status_code, status, res.text)
+        error = res.json()['error']
+        self.assertEqual((error['code'], error['field']), (code, field))
+        self.assertTrue(error['message'])
+
+    def _last_log_id(self):
+        return self.env['shop.api.call.log'].search([], limit=1).id or 0  # ('id', '>', False) no matchea nada
+
+    # -- tests --------------------------------------------------------------
+
+    def test_authentication_required(self):
+        for key in (False, 'clave-inventada'):
+            with self.subTest(key=key):
+                res = self._get_products(key=key)
+                self._assert_error(res, 401, 'UNAUTHORIZED')
+                self.assertEqual(res.headers.get('WWW-Authenticate'), 'Bearer')
+
+    def test_products_list(self):
+        res = self._get_products()
+        self.assertEqual(res.status_code, 200, res.text)
+        products = {product['id']: product for product in res.json()['data']}
+        self.assertIn(self.no_stock.id, products)
+        self.assertNotIn(self.not_sellable.id, products)
+        self.assertNotIn(self.archived.id, products)
+
+        data = products[self.in_stock.id]
+        self.assertTrue(data.pop('write_date'))
+        self.assertEqual(data, {
+            'id': self.in_stock.id, 'default_code': 'SHOPAPI-P1', 'name': 'SHOPAPI-P1',
+            'price': 100.0, 'qty_available': 10.0, 'category_id': self.in_stock.categ_id.id,
         })
-        
-        # Añadir 25 unidades de stock al Producto A
-        self.env['stock.quant'].create({
-            'product_id': self.product_a.id,
-            'location_id': self.env.ref('stock.stock_location_stock').id,
-            'quantity': 25.0,
-        })
 
-        # 3. Crear producto B (Sin stock, pero habilitado para venta)
-        self.product_b = self.env['product.product'].create({
-            'name': 'Producto Test B',
-            'default_code': 'TEST-B',
-            'list_price': 50.0,
-            'sale_ok': True,
-            'is_storable': True,
-        })
+    def test_products_filters(self):
+        none = self.env['product.product']
+        yesterday = fields.Date.to_string(fields.Date.today() - timedelta(days=1))
+        tomorrow = (fields.Datetime.now() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S')
+        cases = [
+            # (query, deben aparecer, no deben aparecer)
+            ('?in_stock=true', self.in_stock, self.no_stock),
+            ('?in_stock=false', self.in_stock | self.no_stock, none),
+            (f'?category_id={self.category.id}', self.in_stock, self.no_stock),  # incluye subcategorías
+            (f'?modified_since={yesterday}', self.in_stock, none),
+            (f'?modified_since={tomorrow}', none, self.in_stock),
+        ]
+        for query, included, excluded in cases:
+            with self.subTest(query=query):
+                ids = self._product_ids(query)
+                self.assertLessEqual(set(included.ids), ids)
+                self.assertFalse(set(excluded.ids) & ids)
 
-        # 4. Crear producto C (NO habilitado para la venta)
-        self.product_c = self.env['product.product'].create({
-            'name': 'Producto Test C',
-            'sale_ok': False,
-        })
+    def test_products_invalid_parameters(self):
+        cases = [
+            ('category_id=abc', 'INVALID_CATEGORY', 'category_id'),
+            ('modified_since=31-12-2026', 'INVALID_DATE_FORMAT', 'modified_since'),
+            ('in_stock=quizas', 'INVALID_PARAMETER', 'in_stock'),
+        ]
+        for query, code, field in cases:
+            with self.subTest(query=query):
+                self._assert_error(self._get_products(f'?{query}'), 400, code, field)
 
-    def test_01_get_products_success(self):
-        """Verifica que el endpoint retorna productos válidos y omite los no vendibles."""
-        self.authenticate('admin', 'admin')  # auth='user' exige sesión activa
-        response = self.url_open('/api/v1/products')
-        self.assertEqual(response.status_code, 200)
-        
-        data = response.json()
-        self.assertEqual(data['status'], 'success')
-        
-        # Extraer IDs de la respuesta JSON
-        product_ids = [p['id'] for p in data['data']]
-        self.assertIn(self.product_a.id, product_ids, "El Producto A debería estar en la respuesta.")
-        self.assertIn(self.product_b.id, product_ids, "El Producto B debería estar en la respuesta.")
-        self.assertNotIn(self.product_c.id, product_ids, "El Producto C NO debe estar porque sale_ok=False.")
+    def test_order_created(self):
+        # El RIF se normaliza: la tienda puede mandarlo en minúsculas o con espacios
+        res = self._post_order(order(customer_rif=' j-12345678-9 '))
+        self.assertEqual(res.status_code, 201, res.text)
+        data = res.json()['data']
 
-    def test_02_filter_in_stock(self):
-        """Verifica que el filtro de stock > 0 funcione correctamente."""
-        self.authenticate('admin', 'admin')
-        response = self.url_open('/api/v1/products?in_stock=true')
-        self.assertEqual(response.status_code, 200)
-        
-        data = response.json()
-        product_ids = [p['id'] for p in data['data']]
-        self.assertIn(self.product_a.id, product_ids, "Producto A tiene 25 en stock, debe aparecer.")
-        self.assertNotIn(self.product_b.id, product_ids, "Producto B tiene 0 en stock, NO debe aparecer.")
+        sale = self.env['sale.order'].browse(data['id'])
+        self.assertEqual(sale.partner_id, self.customer)
+        self.assertEqual(sale.client_order_ref, 'EXT-001')
+        self.assertEqual(sale.state, 'draft')
+        self.assertEqual(data['name'], sale.name)
+        self.assertEqual(data['customer_rif'], RIF)
+        self.assertEqual(data['lines'], [{
+            'default_code': 'SHOPAPI-P1', 'quantity': 2.0, 'price_unit': 100.0, 'subtotal': 200.0,
+        }])
 
-    def test_03_invalid_category_error(self):
-        """Verifica que el sistema atrape un category_id inválido y retorne HTTP 400 sin romper el servidor."""
-        self.authenticate('admin', 'admin')
-        response = self.url_open('/api/v1/products?category_id=letras')
-        self.assertEqual(response.status_code, 400)
-        
-        data = response.json()
-        self.assertEqual(data['error']['code'], 'invalid_category')
+    def test_order_validation_errors(self):
+        cases = [
+            ('esto no es json', 400, 'INVALID_JSON', None),
+            ('[1, 2]', 400, 'INVALID_JSON', None),
+            ({}, 422, 'FIELD_REQUIRED', 'customer_rif'),
+            (order(customer_rif='   '), 422, 'FIELD_REQUIRED', 'customer_rif'),
+            (order(external_ref=None), 422, 'FIELD_REQUIRED', 'external_ref'),
+            (order(lines=[]), 422, 'FIELD_REQUIRED', 'lines'),
+            (order(lines=[{'quantity': 1}]), 422, 'FIELD_REQUIRED', 'lines[0].default_code'),
+            (order(lines=['SHOPAPI-P1']), 422, 'INVALID_LINE', 'lines[0]'),
+            *[(order(lines=[line(quantity=qty)]), 422, 'INVALID_QUANTITY', 'lines[0].quantity')
+              for qty in (0, -5, 'texto', None, True, float('nan'))],
+            (order(customer_rif='J-00000000-0'), 422, 'CUSTOMER_NOT_FOUND', 'customer_rif'),
+            (order(customer_rif=AMBIGUOUS_RIF), 422, 'CUSTOMER_AMBIGUOUS', 'customer_rif'),
+            (order(lines=[line(), line('FANTASMA')]), 422, 'PRODUCT_NOT_FOUND', 'lines[1].default_code'),
+            (order(lines=[line('SHOPAPI-P3')]), 422, 'PRODUCT_NOT_SELLABLE', 'lines[0].default_code'),
+        ]
+        for body, status, code, field in cases:
+            with self.subTest(code=code, body=body):
+                self._assert_error(self._post_order(body), status, code, field)
 
-    def test_04_invalid_date_error(self):
-        """Verifica que un formato de fecha erróneo retorne HTTP 400 en lugar de un Error 500 crudo."""
-        self.authenticate('admin', 'admin')
-        response = self.url_open('/api/v1/products?modified_since=31-12-2026')
-        self.assertEqual(response.status_code, 400)
-        
-        data = response.json()
-        self.assertEqual(data['error']['code'], 'invalid_date_format')
-    def test_05_unauthenticated_access(self):
-        """Verifica que un usuario sin sesión no pueda acceder a los datos de la API."""
-        response = self.url_open('/api/v1/products')
-        
-        # Como usamos auth='user', Odoo protege la ruta bloqueando el acceso y 
-        # devolviendo un HTTP 303 (See Other) para redirigir al portal de /web/login
-        data = response.json()
-        self.assertEqual(data.get('error', {}).get('code'), 'unauthorized')
+    def test_order_forbidden_without_sales_rights(self):
+        res = self._post_order(order(external_ref='EXT-FORBIDDEN'), key=self.no_sales_key)
+        self._assert_error(res, 403, 'FORBIDDEN')
+        self.assertFalse(self.env['sale.order'].search_count([('client_order_ref', '=', 'EXT-FORBIDDEN')]))
+
+    def test_calls_are_logged(self):
+        last_id = self._last_log_id()
+        self._get_products('?in_stock=true')
+        self._get_products(key=False)
+        self._post_order(order(customer_rif='J-00000000-0'))
+
+        logs = self.env['shop.api.call.log'].search([('id', '>', last_id)], order='id')
+        self.assertEqual(
+            [(log.endpoint, log.method, log.user_id.id, log.status_code, log.error_code) for log in logs],
+            [
+                ('/api/v1/products', 'GET', self.api_user.id, 200, False),  # sin query string
+                ('/api/v1/products', 'GET', False, 401, 'UNAUTHORIZED'),
+                ('/api/v1/orders', 'POST', self.api_user.id, 422, 'CUSTOMER_NOT_FOUND'),
+            ],
+        )
+        self.assertEqual(logs[0].display_name, 'GET /api/v1/products (200)')
+
+    def test_log_failure_does_not_break_response(self):
+        Log = self.env['shop.api.call.log']
+        last_id = self._last_log_id()
+        with (
+            patch.object(type(Log), 'create', side_effect=Exception('Fallo simulado al escribir el log')),
+            self.assertLogs('odoo.addons.shop_integration_api.controllers.api_controller', level='ERROR'),
+        ):
+            res = self._get_products()
+        self.assertEqual(res.status_code, 200, res.text)
+        self.assertFalse(Log.search_count([('id', '>', last_id)]))
+
+    def test_log_access_restricted(self):
+        Log = self.env['shop.api.call.log']
+        admin = new_test_user(self.env, login='shop_api_admin', groups='base.group_user,base.group_system')
+        self.assertFalse(Log.with_user(self.api_user).has_access('read'), 'El usuario de la API no ve el log')
+        self.assertTrue(Log.with_user(admin).has_access('read'))
+        for operation in ('create', 'write'):
+            with self.subTest(operation=operation):
+                self.assertFalse(Log.with_user(admin).has_access(operation), 'Ni un administrador altera el log')
