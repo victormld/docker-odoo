@@ -2,6 +2,7 @@ import functools
 import json
 import logging
 import math
+import time
 from collections import defaultdict
 from datetime import datetime
 
@@ -15,7 +16,7 @@ DATE_FORMATS = ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S')
 
 
 # ---------------------------------------------------------------------------
-# Infraestructura compartida: errores, respuestas, autenticación
+# Infraestructura compartida: errores, respuestas, autenticación y log
 # ---------------------------------------------------------------------------
 
 class ApiError(Exception):
@@ -52,16 +53,34 @@ def authenticate():
     return request.env.user
 
 
+def log_call(user, status, error, started):
+    """Registra la llamada. Nunca debe tumbar la respuesta de la API."""
+    try:
+        with request.env.cr.savepoint():
+            request.env['shop.api.call.log'].sudo().create({
+                'endpoint': request.httprequest.path,  # sin query string ni cabeceras: la clave nunca llega aquí
+                'method': request.httprequest.method,
+                'user_id': user.id if user else False,
+                'status_code': status,
+                'duration_ms': int((time.monotonic() - started) * 1000),
+                'error_code': error.code if error else False,
+            })
+    except Exception:
+        _logger.exception('No se pudo registrar la llamada a la API')
+
+
 def api_endpoint(func):
-    """Autentica, ejecuta el handler dentro de un savepoint y traduce errores al
-    formato estándar."""
+    """Autentica, ejecuta el handler dentro de un savepoint, traduce errores al
+    formato estándar y registra TODA llamada (también las fallidas)."""
 
     @functools.wraps(func)
     def wrapper(self, **kwargs):
+        started = time.monotonic()
+        user = None
         error = None
         response = None
         try:
-            authenticate()
+            user = authenticate()
             # Si algo falla a medias, el savepoint deshace lo escrito: nunca queda un pedido parcial.
             with request.env.cr.savepoint():
                 response = func(self, **kwargs)
@@ -78,6 +97,7 @@ def api_endpoint(func):
         if error:
             headers = [('WWW-Authenticate', 'Bearer')] if error.status == 401 else None
             response = json_response(error.payload(), error.status, headers)
+        log_call(user, response.status_code, error, started)
         return response
 
     return wrapper

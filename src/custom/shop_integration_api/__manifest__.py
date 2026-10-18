@@ -16,7 +16,9 @@
         'sale_management',
         'stock',
     ],
-    'data': [],
+    'data': [
+        'security/ir.model.access.csv',
+    ],
     'installable': True,
     'application': False,
     'license': 'LGPL-3',
