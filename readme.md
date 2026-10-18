@@ -5,6 +5,35 @@ Entorno de desarrollo que permite levantar **múltiples instancias de Odoo** (di
 Compatible con Odoo 14.0, 16.0, 17.0, 18.0, 19.0 y master.
 Compatible con Linux y macOS (AMD y ARM).
 
+## Prueba técnica — entrega
+
+**Versión de Odoo: 18.0.** En este repositorio la versión se elige por instancia en `instances.json` (`"odoo_version": "18.0"`), no con `ODOO_VERSION` en un `.env`.
+
+| Ejercicio | Módulo | Documentación |
+|---|---|---|
+| 1. Integración con API para una tienda en línea | `src/custom/shop_integration_api` | [README](src/custom/shop_integration_api/README.md) |
+
+El módulo del ejercicio 1 está en `src/custom/`, así que la instancia necesita esa carpeta en sus addons, además de `src/custom/prueba-tecnica` para los módulos que ya traía el repositorio:
+
+```jsonc
+"prueba_tecnica": {
+  "odoo_version": "18.0",
+  "external_port": 8069,
+  "database": "db_prueba",
+  "odoo_config": "18.0_default",
+  "overwrite_odoo_config": {
+    "addons": ["src/custom", "src/custom/prueba-tecnica"],
+    "dev_mode": true
+  }
+}
+```
+
+Para correr las pruebas sobre una base nueva:
+
+```bash
+./odoo test prueba_tecnica shop_integration_api -d prueba_limpia
+```
+
 ## Instalación Rápida
 
 ```bash
