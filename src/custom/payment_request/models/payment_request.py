@@ -55,6 +55,9 @@ class PaymentRequest(models.Model):
     payment_reference = fields.Char(related="payment_id.name", string="Payment Reference")
     payment_date = fields.Date(related="payment_id.date", string="Payment Date")
     payment_journal = fields.Char(related="payment_id.journal_id.name", string="Paid From")
+    # The request is paid once treasury registers the payment; accounting moves the payment
+    # from in process to paid when it reconciles it, and the requester follows it here
+    payment_state = fields.Selection(related="payment_id.state", string="Payment Status")
 
     @api.constrains("amount")
     def _check_amount(self):
@@ -203,10 +206,18 @@ class PaymentRequest(models.Model):
             "journal_id": journal.id,
             "date": payment_date,
             "memo": self.name,
+            "payment_request_id": self.id,
         })
         payment.action_post()
         self.write({"state": "paid", "payment_id": payment.id})
         return payment
+
+    def _release_payment(self, reason):
+        """The payment was cancelled, rejected or deleted in accounting: treasury has to pay again."""
+        self.ensure_one()
+        self.write({"state": "approved", "payment_id": False})
+        self.message_post(body=_("%s The request is approved again so treasury can pay it.", reason),
+                          subtype_xmlid="mail.mt_note")
 
     def action_view_payment(self):
         self.ensure_one()

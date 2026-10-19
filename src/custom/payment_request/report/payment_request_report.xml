@@ -57,6 +57,7 @@
                             <table class="table table-sm">
                                 <tbody>
                                     <tr><th class="w-25">Payment reference</th><td><span t-field="o.payment_reference"/></td></tr>
+                                    <tr><th>Payment status</th><td><span t-field="o.payment_state"/></td></tr>
                                     <tr><th>Payment date</th><td><span t-field="o.payment_date"/></td></tr>
                                     <tr><th>Paid from</th><td><span t-field="o.payment_journal"/></td></tr>
                                 </tbody>

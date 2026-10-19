@@ -17,6 +17,8 @@
                 <field name="state" widget="badge" decoration-info="state == 'submitted'"
                        decoration-warning="state == 'approved'" decoration-success="state == 'paid'"
                        decoration-danger="state == 'rejected'"/>
+                <field name="payment_state" widget="badge" optional="show"
+                       decoration-info="payment_state == 'in_process'" decoration-success="payment_state == 'paid'"/>
             </list>
         </field>
     </record>
@@ -71,6 +73,7 @@
                     </group>
                     <group string="Payment" invisible="not payment_reference">
                         <field name="payment_reference"/>
+                        <field name="payment_state"/>
                         <field name="payment_date"/>
                         <field name="payment_journal"/>
                     </group>
