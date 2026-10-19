@@ -114,7 +114,7 @@ El módulo solo agrega lo que falta: la solicitud con su flujo, los niveles de a
 - **No se puede pagar dos veces:** el pago exige que la solicitud esté *Aprobada*, y al pagar deja de estarlo.
 - **"Pagada" significa que tesorería registró el pago** (supuesto 15). El estado contable del pago se muestra aparte, en el formulario, la lista y el PDF:
   - **En proceso:** el pago está en contabilidad, contra la cuenta de pagos pendientes del diario, pero falta confirmarlo.
-  - **Pagado:** contabilidad lo concilió. En Odoo Community la conciliación bancaria no existe (es de Enterprise), así que el pago pasa a *Pagado* cuando contabilidad lo concilia con la factura del proveedor, con el botón *Agregar* que aparece en la factura.
+  - **Pagado:** contabilidad lo concilió. En Odoo Community la conciliación bancaria no existe (es de Enterprise), así que el pago pasa a *Pagado* cuando contabilidad lo concilia con la factura del proveedor: en la factura, la sección *Débitos pendientes* lista los pagos del proveedor con el número de la solicitud, y se elige con *Agregar*. Si la factura es mayor que el pago, la factura queda en pago parcial y el pago sigue *En proceso*.
 - **Si contabilidad cancela, rechaza o elimina el pago**, la solicitud vuelve a *Aprobada* con una nota en el historial, y tesorería la puede pagar de nuevo. Un pago devuelto a borrador conserva su solicitud, porque se corrige y se vuelve a publicar. Un pago ya reemplazado por otro no afecta la solicitud.
 
 ### Reporte PDF
@@ -215,6 +215,7 @@ Preguntas para Carolina y el supuesto con el que se avanzó mientras no hay resp
 **Otras limitaciones:**
 
 - **En Odoo Community el pago queda *En proceso*** hasta que contabilidad lo concilia con la factura del proveedor, porque la conciliación bancaria es de Enterprise. La alternativa es la configuración opcional del punto 6 de *Puesta en marcha*.
+- **Un pago rechazado sigue apareciendo en las facturas del proveedor.** En Odoo, *Rechazar* solo cambia el estado del pago y deja su asiento publicado, así que el pago sigue en *Débitos pendientes* y se podría conciliar con una factura por error, aunque la solicitud ya volvió a *Aprobada*. Después de rechazar un pago, contabilidad debe cancelarlo: así se cancela su asiento y deja de aparecer.
 - **Odoo no deja eliminar un pago que ya tomó número** si no es el último de la secuencia; contabilidad tiene que cancelarlo o rechazarlo. En los dos casos la solicitud vuelve a *Aprobada*.
 - **Un pago cancelado que contabilidad vuelve a publicar no vuelve a la solicitud**, que ya está *Aprobada* o pagada con otro pago. Evitar un pago duplicado en ese caso queda en manos de contabilidad.
 - **El nivel se elige al enviar.** Si después cambian los niveles o el aprobador, las solicitudes enviadas conservan el que tenían (supuesto 13).
