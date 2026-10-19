@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_payment_request_root" name="Payment Requests" sequence="45"
+              web_icon="account,static/description/icon.png" groups="group_payment_request_user"/>
+    <menuitem id="menu_payment_request" name="Payment Requests" parent="menu_payment_request_root"
+              action="payment_request_action" sequence="10"/>
+</odoo>
