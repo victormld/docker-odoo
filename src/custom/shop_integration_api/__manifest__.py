@@ -2,12 +2,12 @@
     'name': 'Shop Integration API',
     'version': '18.0.1.0.0',
     'category': 'Sales/Integration',
-    'summary': 'REST API para integración con tiendas externas (Catálogo y Pedidos)',
+    'summary': 'REST API for external shops: product catalog and sales orders',
     'description': """
-        Módulo de integración API REST diseñado para permitir a tiendas de terceros:
-        - Consultar el catálogo de productos disponibles y su stock.
-        - Crear pedidos de venta directamente en Odoo.
-        - Registrar un log de auditoría de las llamadas a la API.
+        REST API that lets an external online shop:
+        - Read the catalog of products for sale and their stock.
+        - Create sales orders directly in Odoo.
+        - Keep an audit log of the API calls.
     """,
     'author': 'Víctor Maldonado',
     'depends': [

@@ -31,13 +31,13 @@ class TestShopIntegrationAPI(HttpCase):
         cls.api_user = new_test_user(
             cls.env, login='shop_api_user', groups='base.group_user,sales_team.group_sale_salesman')
         cls.api_key = cls._api_key(cls.api_user)
-        # Usuario interno sin permisos de ventas: se autentica pero no puede crear pedidos
+        # Internal user without sales rights: authenticates but cannot create orders
         cls.no_sales_key = cls._api_key(new_test_user(cls.env, login='shop_api_no_sales'))
 
-        cls.category = cls.env['product.category'].create({'name': 'API Padre'})
-        child = cls.env['product.category'].create({'name': 'API Hija', 'parent_id': cls.category.id})
-        # Para probar los filtros combinados: uno cumple categoría y stock, y cada uno de
-        # los otros dos falla solo uno de los dos filtros
+        cls.category = cls.env['product.category'].create({'name': 'API Parent'})
+        child = cls.env['product.category'].create({'name': 'API Child', 'parent_id': cls.category.id})
+        # For the combined filters: one product matches category and stock, and each of
+        # the other two fails only one of the two filters
         cls.in_stock = cls._product('SHOPAPI-P1', list_price=100.0, categ_id=child.id)
         cls.no_stock = cls._product('SHOPAPI-P2', categ_id=child.id)
         cls.other_category = cls._product('SHOPAPI-P5')
@@ -48,15 +48,15 @@ class TestShopIntegrationAPI(HttpCase):
         cls.env['stock.quant']._update_available_quantity(cls.other_category, warehouse.lot_stock_id, 5.0)
 
         Partner = cls.env['res.partner']
-        cls.customer = Partner.create({'name': 'Cliente Tienda', 'vat': RIF})
-        # El vat se copia a los contactos hijos: no debe volver ambiguo el RIF
-        Partner.create({'name': 'Contacto Compras', 'parent_id': cls.customer.id})
-        Partner.create([{'name': 'Duplicado A', 'vat': AMBIGUOUS_RIF}, {'name': 'Duplicado B', 'vat': AMBIGUOUS_RIF}])
+        cls.customer = Partner.create({'name': 'Shop Customer', 'vat': RIF})
+        # The VAT is copied to child contacts: it must not make the RIF ambiguous
+        Partner.create({'name': 'Purchasing Contact', 'parent_id': cls.customer.id})
+        Partner.create([{'name': 'Duplicate A', 'vat': AMBIGUOUS_RIF}, {'name': 'Duplicate B', 'vat': AMBIGUOUS_RIF}])
 
     @classmethod
     def _api_key(cls, user):
         expiration = fields.Datetime.now() + timedelta(hours=12)
-        return cls.env['res.users.apikeys'].with_user(user)._generate('rpc', 'Tienda', expiration)
+        return cls.env['res.users.apikeys'].with_user(user)._generate('rpc', 'Shop', expiration)
 
     @classmethod
     def _product(cls, code, **vals):
@@ -89,12 +89,12 @@ class TestShopIntegrationAPI(HttpCase):
         self.assertTrue(error['message'])
 
     def _last_log_id(self):
-        return self.env['shop.api.call.log'].search([], limit=1).id or 0  # ('id', '>', False) no matchea nada
+        return self.env['shop.api.call.log'].search([], limit=1).id or 0  # ('id', '>', False) matches nothing
 
     # -- tests --------------------------------------------------------------
 
     def test_authentication_required(self):
-        for key in (False, 'clave-inventada'):
+        for key in (False, 'made-up-key'):
             with self.subTest(key=key):
                 res = self._get_products(key=key)
                 self._assert_error(res, 401, 'UNAUTHORIZED')
@@ -121,13 +121,13 @@ class TestShopIntegrationAPI(HttpCase):
         tomorrow = (fields.Datetime.now() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S')
         category = f'category_id={self.category.id}'
         cases = [
-            # (query, deben aparecer, no deben aparecer)
+            # (query, must be listed, must not be listed)
             ('?in_stock=true', self.in_stock | self.other_category, self.no_stock),
             ('?in_stock=false', self.in_stock | self.no_stock | self.other_category, none),
-            (f'?{category}', self.in_stock | self.no_stock, self.other_category),  # incluye subcategorías
+            (f'?{category}', self.in_stock | self.no_stock, self.other_category),  # includes subcategories
             (f'?modified_since={yesterday}', self.in_stock, none),
             (f'?modified_since={tomorrow}', none, self.in_stock),
-            # combinados: cada filtro descarta lo suyo
+            # combined: each filter drops its own
             (f'?{category}&in_stock=true', self.in_stock, self.no_stock | self.other_category),
             (f'?{category}&in_stock=true&modified_since={yesterday}', self.in_stock,
              self.no_stock | self.other_category),
@@ -143,14 +143,14 @@ class TestShopIntegrationAPI(HttpCase):
         cases = [
             ('category_id=abc', 'INVALID_CATEGORY', 'category_id'),
             ('modified_since=31-12-2026', 'INVALID_DATE_FORMAT', 'modified_since'),
-            ('in_stock=quizas', 'INVALID_PARAMETER', 'in_stock'),
+            ('in_stock=maybe', 'INVALID_PARAMETER', 'in_stock'),
         ]
         for query, code, field in cases:
             with self.subTest(query=query):
                 self._assert_error(self._get_products(f'?{query}'), 400, code, field)
 
     def test_order_created(self):
-        # El RIF se normaliza: la tienda puede mandarlo en minúsculas o con espacios
+        # The RIF is normalized: the shop may send it lowercase or with spaces
         res = self._post_order(order(customer_rif=' j-12345678-9 '))
         self.assertEqual(res.status_code, 201, res.text)
         data = res.json()['data']
@@ -167,7 +167,7 @@ class TestShopIntegrationAPI(HttpCase):
 
     def test_order_validation_errors(self):
         cases = [
-            ('esto no es json', 400, 'INVALID_JSON', None),
+            ('this is not json', 400, 'INVALID_JSON', None),
             ('[1, 2]', 400, 'INVALID_JSON', None),
             ({}, 422, 'FIELD_REQUIRED', 'customer_rif'),
             (order(customer_rif='   '), 422, 'FIELD_REQUIRED', 'customer_rif'),
@@ -176,10 +176,10 @@ class TestShopIntegrationAPI(HttpCase):
             (order(lines=[{'quantity': 1}]), 422, 'FIELD_REQUIRED', 'lines[0].default_code'),
             (order(lines=['SHOPAPI-P1']), 422, 'INVALID_LINE', 'lines[0]'),
             *[(order(lines=[line(quantity=qty)]), 422, 'INVALID_QUANTITY', 'lines[0].quantity')
-              for qty in (0, -5, 'texto', None, True, float('nan'))],
+              for qty in (0, -5, 'text', None, True, float('nan'))],
             (order(customer_rif='J-00000000-0'), 422, 'CUSTOMER_NOT_FOUND', 'customer_rif'),
             (order(customer_rif=AMBIGUOUS_RIF), 422, 'CUSTOMER_AMBIGUOUS', 'customer_rif'),
-            (order(lines=[line(), line('FANTASMA')]), 422, 'PRODUCT_NOT_FOUND', 'lines[1].default_code'),
+            (order(lines=[line(), line('GHOST')]), 422, 'PRODUCT_NOT_FOUND', 'lines[1].default_code'),
             (order(lines=[line('SHOPAPI-P3')]), 422, 'PRODUCT_NOT_SELLABLE', 'lines[0].default_code'),
         ]
         for body, status, code, field in cases:
@@ -201,7 +201,7 @@ class TestShopIntegrationAPI(HttpCase):
         self.assertEqual(
             [(log.endpoint, log.method, log.user_id.id, log.status_code, log.error_code) for log in logs],
             [
-                ('/api/v1/products', 'GET', self.api_user.id, 200, False),  # sin query string
+                ('/api/v1/products', 'GET', self.api_user.id, 200, False),  # no query string
                 ('/api/v1/products', 'GET', False, 401, 'UNAUTHORIZED'),
                 ('/api/v1/orders', 'POST', self.api_user.id, 422, 'CUSTOMER_NOT_FOUND'),
             ],
@@ -212,7 +212,7 @@ class TestShopIntegrationAPI(HttpCase):
         Log = self.env['shop.api.call.log']
         last_id = self._last_log_id()
         with (
-            patch.object(type(Log), 'create', side_effect=Exception('Fallo simulado al escribir el log')),
+            patch.object(type(Log), 'create', side_effect=Exception('Simulated failure writing the log')),
             self.assertLogs('odoo.addons.shop_integration_api.controllers.api_controller', level='ERROR'),
         ):
             res = self._get_products()
@@ -222,8 +222,8 @@ class TestShopIntegrationAPI(HttpCase):
     def test_log_access_restricted(self):
         Log = self.env['shop.api.call.log']
         admin = new_test_user(self.env, login='shop_api_admin', groups='base.group_user,base.group_system')
-        self.assertFalse(Log.with_user(self.api_user).has_access('read'), 'El usuario de la API no ve el log')
+        self.assertFalse(Log.with_user(self.api_user).has_access('read'), 'The API user cannot see the log')
         self.assertTrue(Log.with_user(admin).has_access('read'))
         for operation in ('create', 'write'):
             with self.subTest(operation=operation):
-                self.assertFalse(Log.with_user(admin).has_access(operation), 'Ni un administrador altera el log')
+                self.assertFalse(Log.with_user(admin).has_access(operation), 'Not even an administrator can alter the log')
