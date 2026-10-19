@@ -15,6 +15,7 @@
         "wizards/payment_request_payment_wizard_views.xml",
         "wizards/payment_request_reject_wizard_views.xml",
         "views/menus.xml",
+        "report/payment_request_report.xml",
     ],
     "installable": True,
     "application": True,

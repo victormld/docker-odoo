@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_request" model="ir.actions.report">
+        <field name="name">Payment Request</field>
+        <field name="model">payment.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_request.report_payment_request</field>
+        <field name="report_file">payment_request.report_payment_request</field>
+        <field name="print_report_name">'Payment Request - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_payment_request"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_payment_request">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Payment Request <span t-field="o.name"/></h2>
+                        <table class="table table-sm o_main_table mt-4">
+                            <tbody>
+                                <tr><th class="w-25">Supplier</th><td><span t-field="o.partner_id"/></td></tr>
+                                <tr><th>Requested by</th><td><span t-out="o.requester_id.name"/></td></tr>
+                                <tr><th>Date</th><td><span t-field="o.date"/></td></tr>
+                                <tr>
+                                    <th>Amount</th>
+                                    <td><span t-field="o.amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                                </tr>
+                                <tr><th>Concept</th><td><span t-field="o.concept"/></td></tr>
+                                <tr><th>Status</th><td><span t-field="o.state"/></td></tr>
+                            </tbody>
+                        </table>
+
+                        <t t-if="o.approval_date">
+                            <h4 class="mt-4">Approval</h4>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr><th class="w-25">Approved by</th><td><span t-out="o.approver_id.name"/></td></tr>
+                                    <tr><th>Approved on</th><td><span t-field="o.approval_date"/></td></tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <t t-if="o.rejection_reason">
+                            <h4 class="mt-4">Rejection</h4>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr><th class="w-25">Rejected by</th><td><span t-out="o.approver_id.name"/></td></tr>
+                                    <tr><th>Reason</th><td><span t-field="o.rejection_reason"/></td></tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <t t-if="o.payment_reference">
+                            <h4 class="mt-4">Payment</h4>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr><th class="w-25">Payment reference</th><td><span t-field="o.payment_reference"/></td></tr>
+                                    <tr><th>Payment date</th><td><span t-field="o.payment_date"/></td></tr>
+                                    <tr><th>Paid from</th><td><span t-field="o.payment_journal"/></td></tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
