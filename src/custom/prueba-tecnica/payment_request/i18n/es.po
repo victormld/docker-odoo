@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20261017\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 17:10+0000\n"
-"PO-Revision-Date: 2026-10-19 17:10+0000\n"
+"POT-Creation-Date: 2026-10-19 20:07+0000\n"
+"PO-Revision-Date: 2026-10-19 20:07+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -19,6 +19,7 @@ msgstr ""
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "%s The request is approved again so treasury can pay it."
 msgstr ""
 "%s La solicitud vuelve a estar aprobada para que tesorería la pague de "
@@ -27,6 +28,7 @@ msgstr ""
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_approval_level.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_approval_level.py:0
 msgid "%s is not an approver of payment requests."
 msgstr "%s no es aprobador de solicitudes de pago."
 
@@ -38,6 +40,7 @@ msgstr "'Solicitud de pago - %s' % object.name"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "A payment request cannot be modified once it has been submitted."
 msgstr "Una solicitud de pago no se puede modificar después de enviada."
 
@@ -107,6 +110,7 @@ msgstr "Aprobar"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Approve or reject payment request %s"
 msgstr "Aprobar o rechazar la solicitud de pago %s"
 
@@ -227,6 +231,7 @@ msgstr ""
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid ""
 "Explain why the payment request is rejected: the requester needs to know."
 msgstr ""
@@ -286,6 +291,12 @@ msgstr "Si está seleccionado, hay nuevos mensajes que requieren tu atención."
 #: model:ir.model.fields,help:payment_request.field_payment_request__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si está seleccionado, algunos mensajes tienen error de envío."
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__in_process
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "In Process"
+msgstr "En proceso"
 
 #. module: payment_request
 #: model:ir.model.fields,field_description:payment_request.field_payment_request__message_is_follower
@@ -361,6 +372,7 @@ msgstr "Tipo de la siguiente actividad"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid ""
 "No approval level applies to payment request %s. Ask your administrator to "
 "configure the approval levels."
@@ -396,6 +408,7 @@ msgstr "Número de mensajes con error de envío"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Only %(approver)s can approve or reject payment request %(request)s."
 msgstr ""
 "Solo %(approver)s puede aprobar o rechazar la solicitud de pago %(request)s."
@@ -403,24 +416,28 @@ msgstr ""
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Only approvers can approve or reject payment requests."
 msgstr "Solo los aprobadores pueden aprobar o rechazar solicitudes de pago."
 
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Only draft payment requests can be deleted."
 msgstr "Solo se pueden eliminar solicitudes de pago en borrador."
 
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Only the requester can submit payment request %s."
 msgstr "Solo el solicitante puede enviar la solicitud de pago %s."
 
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Only treasury can pay payment requests."
 msgstr "Solo tesorería puede pagar solicitudes de pago."
 
@@ -448,6 +465,7 @@ msgstr "Pagar"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 #: model:ir.model,name:payment_request.model_payment_request_payment_wizard
 #: model_terms:ir.ui.view,arch_db:payment_request.payment_request_payment_wizard_view_form
 msgid "Pay Payment Request"
@@ -463,12 +481,14 @@ msgstr "Pago"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/account_payment.py:0
+#: code:addons/prueba-tecnica/payment_request/models/account_payment.py:0
 msgid "Payment %(payment)s is now “%(status)s” in accounting."
 msgstr "El pago %(payment)s ahora está “%(status)s” en contabilidad."
 
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/account_payment.py:0
+#: code:addons/prueba-tecnica/payment_request/models/account_payment.py:0
 msgid "Payment %s was deleted in accounting."
 msgstr "El pago %s fue eliminado en contabilidad."
 
@@ -525,6 +545,7 @@ msgstr "Referencia del pago"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid ""
 "Payment request %s has no approver other than its requester. Ask your "
 "administrator to configure the approval levels."
@@ -535,6 +556,7 @@ msgstr ""
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "Payment request rejected. Reason: %s"
 msgstr "Solicitud de pago rechazada. Motivo: %s"
 
@@ -568,6 +590,7 @@ msgstr "Rechazar"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 #: model:ir.model,name:payment_request.model_payment_request_reject_wizard
 #: model_terms:ir.ui.view,arch_db:payment_request.payment_request_reject_wizard_view_form
 msgid "Reject Payment Request"
@@ -687,12 +710,14 @@ msgstr "Solicitudes de pago a proveedores con aprobación por monto"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "The amount must be greater than zero."
 msgstr "El monto debe ser mayor que cero."
 
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_approval_level.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_approval_level.py:0
 msgid "The minimum amount of an approval level cannot be negative."
 msgstr "El monto mínimo de un nivel de aprobación no puede ser negativo."
 
@@ -704,6 +729,7 @@ msgstr "El solicitante recibirá esta explicación"
 #. module: payment_request
 #. odoo-python
 #: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
 msgid "This action is not available for %s in its current status."
 msgstr "Esta acción no está disponible para %s en su estado actual."
 
