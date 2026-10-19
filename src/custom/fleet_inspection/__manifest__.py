@@ -1,6 +1,6 @@
 {
-    "name": "Vehicle Inspections",
-    "summary": "Inspection checklist for fleet vehicles",
+    "name": "Inspecciones de vehículos",
+    "summary": "Checklist de inspección para los vehículos de la flota",
     "version": "18.0.2.0.0",
     "category": "Human Resources/Fleet",
     "author": "Binaural",

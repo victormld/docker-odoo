@@ -6,20 +6,20 @@ from odoo.exceptions import UserError, ValidationError
 
 class FleetInspection(models.Model):
     _name = "fleet.inspection"
-    _description = "Vehicle Inspection"
+    _description = "Inspección de vehículo"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "date desc, id desc"
 
-    name = fields.Char(string="Number", required=True, copy=False, readonly=True, default="/")
+    name = fields.Char(string="Número", required=True, copy=False, readonly=True, default="/")
     vehicle_id = fields.Many2one(
         "fleet.vehicle",
-        string="Vehicle",
+        string="Vehículo",
         required=True,
         tracking=True,
     )
     vehicle_type_id = fields.Many2one(
         "fleet.inspection.vehicle.type",
-        string="Vehicle Type",
+        string="Tipo de vehículo",
         required=True,
         ondelete="restrict",
         tracking=True,
@@ -33,31 +33,31 @@ class FleetInspection(models.Model):
         tracking=True,
     )
     date = fields.Date(
-        string="Date", required=True, default=fields.Date.context_today, tracking=True
+        string="Fecha", required=True, default=fields.Date.context_today, tracking=True
     )
-    odometer = fields.Float(string="Odometer")
+    odometer = fields.Float(string="Kilometraje")
     line_ids = fields.One2many(
         "fleet.inspection.line", "inspection_id", string="Checklist", copy=True
     )
     state = fields.Selection(
         [
-            ("draft", "Draft"),
-            ("in_progress", "In Progress"),
-            ("approved", "Approved"),
-            ("rejected", "Rejected"),
+            ("draft", "Borrador"),
+            ("in_progress", "En curso"),
+            ("approved", "Aprobada"),
+            ("rejected", "Rechazada"),
         ],
-        string="Status",
+        string="Estado",
         default="draft",
         required=True,
         tracking=True,
     )
-    notes = fields.Text(string="Notes")
-    failed_count = fields.Integer(string="Failed Points", compute="_compute_counts", store=True)
-    pending_count = fields.Integer(string="Pending Points", compute="_compute_counts", store=True)
-    is_overdue = fields.Boolean(string="Overdue", readonly=True, copy=False)
+    notes = fields.Text(string="Observaciones")
+    failed_count = fields.Integer(string="Puntos fallidos", compute="_compute_counts", store=True)
+    pending_count = fields.Integer(string="Puntos pendientes", compute="_compute_counts", store=True)
+    is_overdue = fields.Boolean(string="Vencida", readonly=True, copy=False)
 
     _sql_constraints = [
-        ("name_uniq", "unique(name)", "The inspection number must be unique."),
+        ("name_uniq", "unique(name)", "El número de la inspección debe ser único."),
     ]
 
     def _default_vehicle_type_id(self):
@@ -73,7 +73,7 @@ class FleetInspection(models.Model):
     def _check_odometer(self):
         for inspection in self:
             if inspection.odometer < 0:
-                raise ValidationError(_("The odometer cannot be negative."))
+                raise ValidationError(_("El kilometraje no puede ser negativo."))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -96,18 +96,18 @@ class FleetInspection(models.Model):
     def action_start(self):
         for inspection in self:
             if not inspection.line_ids:
-                raise UserError(_("Inspection %s has no checklist points.", inspection.name))
+                raise UserError(_("La inspección %s no tiene puntos en el checklist.") % inspection.name)
         self.write({"state": "in_progress"})
 
     def action_approve(self):
         for inspection in self:
             if inspection.pending_count:
-                raise UserError(_("Inspection %s still has unchecked points.", inspection.name))
+                raise UserError(_("Faltan puntos por revisar en la inspección %s.") % inspection.name)
             critical_failed = inspection.line_ids.filtered(lambda l: l.result == "fail" and l.item_id.critical)
             if critical_failed:
                 raise UserError(
-                    _("Cannot approve: critical points failed (%s).",
-                      ", ".join(critical_failed.mapped("item_id.name")))
+                    _("No se puede aprobar: fallaron puntos críticos (%s).")
+                    % ", ".join(critical_failed.mapped("item_id.name"))
                 )
         self.write({"state": "approved", "is_overdue": False})
 
@@ -119,7 +119,7 @@ class FleetInspection(models.Model):
 
     def unlink(self):
         if any(inspection.state != "draft" for inspection in self):
-            raise UserError(_("Only draft inspections can be deleted."))
+            raise UserError(_("Solo se pueden eliminar inspecciones en borrador."))
         return super(FleetInspection, self).unlink()
 
     @api.model
@@ -131,7 +131,6 @@ class FleetInspection(models.Model):
             inspection.activity_schedule(
                 "mail.mail_activity_data_todo",
                 user_id=inspection.inspector_id.id,
-                summary=inspection.with_context(lang=inspection.inspector_id.lang).env._(
-                    "Inspection in progress for more than %s days", days),
+                summary=_("Inspección en curso desde hace más de %s días") % days,
             )
         return True

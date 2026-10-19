@@ -24,8 +24,6 @@ Migración a **Odoo 18** del módulo de inspecciones de vehículos escrito para 
 | Qué cambió | Por qué | Cómo lo resolví |
 |---|---|---|
 | Ubicación y versión (`16.0.1.0.0` → `18.0.1.0.0`) | Odoo 18 rechaza una versión 16.0 ("invalid manifest") y, con el módulo en sus rutas de addons, deja de poder crear bases. | Copia en `src/custom/fleet_inspection` con la versión nueva; el original queda como referencia. |
-| Textos fuente en inglés | Odoo usa el inglés como idioma fuente y traduce con archivos `.po`. | Etiquetas, vistas, menús, datos, grupos, reporte y mensajes en inglés. Las claves técnicas, los XML-ID y el prefijo `INS/` no cambian. La traducción al español está en `i18n/es.po` (ver *Traducción al español*). |
-| Mensajes con variable: `_("…") % valor` → `_("…", valor)` | Con el formato por fuera, una traducción con el marcador `%s` mal escrito rompe la acción. Con el formato dentro de `_()`, Odoo formatea después de traducir y, si la traducción está mal, usa el texto original. | Los 4 mensajes con variable. El resumen de la actividad de vencimiento se traduce al idioma del inspector, que es quien la recibe. |
 | `<tree>` → `<list>` | Odoo 18 ya no tiene el tipo de vista `tree`: el módulo no instalaba. | Raíz de las vistas de lista y `view_mode` de las acciones. |
 | `attrs` y `states` en las vistas | Desde 17.0 son un `ValidationError` al instalar. | Expresiones de Python en `invisible`, `readonly` y `required` (botones por estado, alerta de vencida, campos bloqueados y resultado obligatorio en curso). |
 | `invisible="1"` en columnas de listas | En Odoo 18, en una lista `invisible` solo vacía cada celda y la columna se sigue viendo; para ocultarla hay que usar `column_invisible`. | `column_invisible="True"` en "Vencida" (lista de inspecciones), "Activo" (puntos del checklist) y "Secuencia" y "Estado" (checklist del formulario). |
@@ -54,8 +52,8 @@ Las pruebas nuevas cubren tres comportamientos que en Odoo 16 no tenían prueba:
 
 **Versión 18.0.2.0.0.** El campo de selección `vehicle_type` se reemplaza por `vehicle_type_id`, un many2one obligatorio a `fleet.inspection.vehicle.type`:
 
-- El catálogo tiene nombre (traducible), código, secuencia y activo. Trae cuatro tipos cuyos códigos son exactamente las claves del campo viejo: `motorcycle`, `car`, `truck` y `other`. La migración se basa en el código, no en el nombre, que el usuario puede cambiar.
-- El tipo por defecto es "Car", como antes. Un tipo en uso no se puede borrar (`ondelete="restrict"`).
+- El catálogo tiene nombre, código, secuencia y activo. Trae cuatro tipos cuyos códigos son exactamente las claves del campo viejo: `motorcycle`, `car`, `truck` y `other`. La migración se basa en el código, no en el nombre, que el usuario puede cambiar.
+- El tipo por defecto es "Carro", como antes. Un tipo en uso no se puede borrar (`ondelete="restrict"`).
 - El inspector solo lee el catálogo; el supervisor lo administra en *Flota › Configuración › Tipos de vehículo*.
 
 ### Cómo se migran las inspecciones existentes
@@ -64,11 +62,11 @@ Al actualizar con `-u fleet_inspection` desde la versión 18.0.1, Odoo ejecuta:
 
 1. **`pre-migrate.py`**, antes de tocar las tablas:
    - Renombra la columna vieja a `vehicle_type_legacy`, que queda como respaldo, y le quita el `NOT NULL`. Si lo conservara, ninguna inspección nueva se podría crear.
-   - Crea `vehicle_type_id` vacía. Si la creara el ORM y el catálogo ya existiera, llenaría todas las filas con "Car" y la migración ya no sabría cuáles faltan.
+   - Crea `vehicle_type_id` vacía. Si la creara el ORM y el catálogo ya existiera, llenaría todas las filas con "Carro" y la migración ya no sabría cuáles faltan.
 2. Odoo crea la tabla del catálogo y carga sus cuatro tipos.
 3. **`post-migrate.py`**:
    - Asigna el tipo por código con un solo `UPDATE`, solo a las inspecciones que siguen sin tipo.
-   - Un valor que no está en el catálogo crea su propio tipo, con un warning en el log; un valor vacío pasa a "Other". Así no se pierde información.
+   - Un valor que no está en el catálogo crea su propio tipo, con un warning en el log; un valor vacío pasa a "Otro". Así no se pierde información.
    - Si alguna inspección queda sin tipo, lanza un error y Odoo revierte toda la actualización del módulo, incluido el renombre de la columna.
 4. Recién después Odoo aplica el `NOT NULL` y la llave foránea a `vehicle_type_id`.
 
@@ -95,24 +93,13 @@ Sobre `dev_ej2_fleet`, con el módulo en la versión 18.0.1:
 | Inspección nueva después de migrar | Se crea con "Car" por defecto |
 | Segunda actualización | No vuelve a ejecutar los scripts y no cambia ningún dato |
 
-## Traducción al español
-
-Los textos del módulo están en inglés, que es el idioma fuente de Odoo, y la traducción está en `i18n/es.po`. Odoo la usa para cualquier variante de español (es_VE, es_ES, es_419…). La plantilla de la que sale es `i18n/fleet_inspection.pot`.
-
-- **110 textos.** Los del módulo usan exactamente los textos originales de Odoo 16, así que un usuario en español ve lo mismo que antes. Los textos nuevos del tramo B (catálogo y migración) se tradujeron aparte. Las 34 etiquetas estándar que el modelo hereda de Odoo ("Seguidores", "Creado por", "Actividades"…) usan la traducción oficial de Odoo: la de Latinoamérica (es_419) cuando existe, y si no, la general.
-- **"Vencidas":** en el original el campo se llamaba "Vencida" y el filtro "Vencidas", pero en inglés comparten el mismo texto ("Overdue") y un `.po` admite una sola traducción por texto. Se usó "Vencidas", porque el filtro es lo que se ve; el campo está oculto en la lista y en el formulario.
-- **Nombre y resumen del módulo:** Odoo no los incluye al exportar la plantilla, así que se agregaron a mano en la plantilla y en `es.po` (`model:ir.module.module,shortdesc:base.module_fleet_inspection` y `summary`). Si se vuelve a exportar la plantilla, hay que conservar esas dos entradas.
-- **Verificación:** se comprobó que todos los textos de la plantilla tienen traducción, que cada traducción conserva los mismos marcadores (`%s`) y las mismas etiquetas HTML que el original, y que el nombre del PDF sigue siendo una expresión de Python válida. Las pruebas de `tests/test_translation.py` cargan el español y verifican etiquetas, datos, nombre del módulo, que los mensajes con variable la sigan mostrando y que la actividad de vencimiento llegue en el idioma del inspector.
-
-**Para ver el módulo en español:** *Ajustes › Idiomas › Activar*, elegir el español y cambiar el idioma del usuario en sus preferencias. Si el idioma se instala desde la consola con `--load-language`, Odoo lo carga antes que los módulos y los datos del módulo (puntos del checklist y tipos de vehículo) quedan en inglés hasta actualizar el módulo con `-u fleet_inspection`.
-
 ## Cómo probarlo
 
 ```bash
 ./odoo test prueba_tecnica fleet_inspection -d prueba_limpia
 ```
 
-Son 23 pruebas. Las de `tests/test_vehicle_type.py` cubren el catálogo y la lógica de migración: cada una reconstruye dentro de su transacción la tabla como estaba antes de actualizar y ejecuta los scripts reales con `load_script`. Se comprobó que fallan si se rompe la lógica de los scripts.
+Son 20 pruebas. Las de `tests/test_vehicle_type.py` cubren el catálogo y la lógica de migración: cada una reconstruye dentro de su transacción la tabla como estaba antes de actualizar y ejecuta los scripts reales con `load_script`. Se comprobó que fallan si se rompe la lógica de los scripts.
 
 Para comparar con el original se puede levantar una instancia de Odoo 16 con su propio servicio de Postgres y `src/custom/prueba-tecnica-odoo16` como única ruta de addons. Debe ser un servicio aparte: si dos instancias comparten servicio, el repositorio exige que cada una tenga su propio rol de Postgres o que no corra acciones planificadas.
 
@@ -134,8 +121,7 @@ Al abrir *Flota › Inspecciones*, la lista muestra solo las inspecciones del us
 ## Supuestos
 
 - La migración conserva el comportamiento del módulo original y no corrige su lógica, aunque tenga defectos (ver limitaciones).
-- Los textos del módulo están en inglés y se muestran en español a los usuarios con el idioma en español, mediante `i18n/es.po`.
-- En la migración, un valor desconocido del campo viejo se conserva como un tipo nuevo del catálogo y un valor vacío pasa a "Other".
+- En la migración, un valor desconocido del campo viejo se conserva como un tipo nuevo del catálogo y un valor vacío pasa a "Otro".
 
 ## Limitaciones conocidas
 
