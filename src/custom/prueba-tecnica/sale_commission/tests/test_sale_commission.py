@@ -91,3 +91,19 @@ class TestSaleCommission(TransactionCase):
             rule.with_user(self.salesman).write({"percent": 50.0})
         with self.assertRaises(AccessError):
             rule.with_user(self.salesman).unlink()
+
+    def test_manager_confirms_with_salesman_percent(self):
+        # T-200: si el gerente confirma el pedido de un vendedor, la comisión es la del vendedor del pedido
+        manager = new_test_user(
+            self.env, login="commission_manager", groups="sales_team.group_sale_manager",
+            name="Gerente de prueba",
+        )
+        manager.commission_percent = 7.0
+        order = self.env["sale.order"].with_user(manager).create({
+            "partner_id": self.partner.id,
+            "user_id": self.salesman.id,
+            "order_line": [(0, 0, {"product_id": self.product.id, "product_uom_qty": 2})],
+        })
+        order.action_confirm()
+        self.assertEqual(order.state, "sale")
+        self.assertEqual(order.order_line.commission_percent, 5.0)
