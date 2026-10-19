@@ -38,6 +38,7 @@ class TestSpanishTranslation(AccountTestInvoicingCommon):
         field_info = env["payment.request"].fields_get(["approver_id", "state", "payment_state"], ["string", "selection"])
         self.assertEqual(field_info["approver_id"]["string"], "Aprobador")
         self.assertEqual(dict(field_info["state"]["selection"])["submitted"], "Enviada")
+        self.assertEqual(dict(field_info["state"]["selection"])["in_process"], "En proceso")
         self.assertEqual(field_info["payment_state"]["string"], "Estado del pago")
         self.assertEqual(env.ref("payment_request.group_payment_request_treasury").name, "Tesorería")
         self.assertEqual(env.ref("payment_request.action_report_payment_request").print_report_name,

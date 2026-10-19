@@ -1,6 +1,7 @@
-from odoo import fields
+from odoo import Command, fields
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.modules.migration import load_script
 from odoo.tests import tagged
 from odoo.tests.common import new_test_user
 
@@ -135,8 +136,8 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
         payment_date = fields.Date.add(fields.Date.today(), days=1)
         self._pay(request, journal_id=journal.id, payment_date=payment_date)
         payment = request.payment_id
-        self.assertEqual(request.state, "paid")
-        self.assertIn(payment.state, ("in_process", "paid"), "The payment is posted")
+        self.assertEqual((payment.state, request.state), ("in_process", "in_process"),
+                         "The payment is posted and waits for accounting to confirm it")
         self.assertEqual(
             (payment.payment_type, payment.partner_type, payment.partner_id, payment.amount, payment.currency_id),
             ("outbound", "supplier", self.supplier, 500.0, request.currency_id),
@@ -165,6 +166,47 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
                 views = self.env["account.payment"].with_user(user).get_views([(False, "form")])
                 self.assertEqual("action_view_payment_request" in views["views"]["form"]["arch"], visible)
 
+    def test_request_paid_when_accounting_reconciles_the_payment(self):
+        request = self._approved_request()
+        self._pay(request)
+        payment = request.payment_id.with_user(self.accountant)
+        self.assertEqual(request.state, "in_process")
+        # In Community, accounting confirms the payment by matching it with the supplier bill
+        bill = self.env["account.move"].with_user(self.accountant).create({
+            "move_type": "in_invoice",
+            "partner_id": self.supplier.id,
+            "invoice_date": fields.Date.today(),
+            "invoice_line_ids": [Command.create({"name": "Spare parts", "price_unit": 500.0, "tax_ids": []})],
+        })
+        bill.action_post()
+        bill.js_assign_outstanding_line(payment.move_id.line_ids.filtered(
+            lambda line: line.account_id.account_type == "liability_payable").id)
+        self.assertEqual((bill.payment_state, payment.state, request.state), ("paid", "paid", "paid"))
+
+    def test_request_paid_at_once_when_journal_posts_to_bank(self):
+        # Accounting setting: outgoing payments go straight to the bank account, without confirmation
+        journal = self.company_data["default_journal_bank"]
+        journal.outbound_payment_method_line_ids[:1].payment_account_id = journal.default_account_id
+        request = self._approved_request()
+        self._pay(request)
+        self.assertEqual((request.payment_id.state, request.state), ("paid", "paid"))
+
+    def test_migration_aligns_paid_requests_with_their_payment(self):
+        request = self._approved_request()
+        self._pay(request)
+        # As version 18.0.1.0.0 left it: paid as soon as treasury registered the payment
+        self.env.flush_all()
+        self.env.cr.execute("UPDATE payment_request SET state = 'paid' WHERE id = %s", [request.id])
+        request.invalidate_recordset(["state"])
+        self.assertEqual((request.state, request.payment_id.state), ("paid", "in_process"))
+
+        migration = load_script("payment_request/migrations/18.0.1.1.0/post-migrate.py",
+                                "payment_request_post_migrate")
+        for _run in range(2):  # a second run changes nothing
+            migration.migrate(self.env.cr, "18.0.1.0.0")
+            request.invalidate_recordset(["state"])
+            self.assertEqual(request.state, "in_process")
+
     def test_cancelled_or_rejected_payment_reopens_request(self):
         for action in ("action_cancel", "action_reject"):
             with self.subTest(action=action):
@@ -179,7 +221,7 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
                 self.assertTrue(request.message_ids.filtered(lambda message: payment_name in str(message.body)))
                 # Treasury pays it again with a new payment
                 self._pay(request)
-                self.assertEqual(request.state, "paid")
+                self.assertEqual(request.state, "in_process")
                 self.assertNotEqual(request.payment_id, payment)
 
     def test_payment_reset_to_draft_keeps_request_until_deleted(self):
@@ -188,7 +230,7 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
         payment = request.payment_id.with_user(self.accountant)
         # Reset to draft to be corrected and posted again: the request keeps it
         payment.action_draft()
-        self.assertEqual((request.state, request.payment_state), ("paid", "draft"))
+        self.assertEqual((request.state, request.payment_state), ("in_process", "draft"))
         payment.unlink()
         self.assertEqual((request.state, request.payment_id), ("approved", self.env["account.payment"]))
 
@@ -200,7 +242,7 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
         self._pay(request)
         # Accounting later cancels the rejected payment: the new one still pays the request
         old_payment.action_cancel()
-        self.assertEqual(request.state, "paid", "Only the payment currently linked counts")
+        self.assertEqual(request.state, "in_process", "Only the payment currently linked counts")
         self.assertNotEqual(request.payment_id, old_payment)
 
     def test_request_cannot_be_paid_twice(self):

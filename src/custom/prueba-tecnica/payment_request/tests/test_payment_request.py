@@ -60,7 +60,7 @@ class TestPaymentRequest(AccountTestInvoicingCommon):
         request.with_user(self.approver).action_approve()
         self.assertEqual(request.state, "approved")
         self._pay(request)
-        self.assertEqual(request.state, "paid")
+        self.assertEqual(request.state, "in_process", "Registered by treasury, not yet confirmed by accounting")
 
     def test_requester_sees_only_own_requests(self):
         own = self._new_request()
