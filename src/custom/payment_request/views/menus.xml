@@ -4,4 +4,8 @@
               web_icon="account,static/description/icon.png" groups="group_payment_request_user"/>
     <menuitem id="menu_payment_request" name="Payment Requests" parent="menu_payment_request_root"
               action="payment_request_action" sequence="10"/>
+    <menuitem id="menu_payment_request_config" name="Configuration" parent="menu_payment_request_root"
+              sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_payment_approval_level" name="Approval Levels" parent="menu_payment_request_config"
+              action="payment_approval_level_action" sequence="10"/>
 </odoo>

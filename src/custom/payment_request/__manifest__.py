@@ -11,6 +11,7 @@
         "security/ir.model.access.csv",
         "data/ir_sequence_data.xml",
         "views/payment_request_views.xml",
+        "views/payment_approval_level_views.xml",
         "views/menus.xml",
     ],
     "installable": True,

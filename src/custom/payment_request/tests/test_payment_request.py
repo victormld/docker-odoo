@@ -21,7 +21,17 @@ class TestPaymentRequest(TransactionCase):
             cls.env, login="pr_treasury", name="Treasury",
             groups="base.group_user,payment_request.group_payment_request_treasury",
         )
+        cls.manager = new_test_user(
+            cls.env, login="pr_manager", name="Manager",
+            groups="base.group_user,payment_request.group_payment_request_approver",
+        )
         cls.supplier = cls.env["res.partner"].create({"name": "Test Supplier"})
+        cls.area_level = cls.env["payment.approval.level"].create({
+            "name": "Area", "min_amount": 0.0, "approver_id": cls.approver.id,
+        })
+        cls.management_level = cls.env["payment.approval.level"].create({
+            "name": "Management", "min_amount": 10000.0, "approver_id": cls.manager.id,
+        })
 
     def _new_request(self, user=None, **vals):
         return self.env["payment.request"].with_user(user or self.requester).create({
@@ -66,8 +76,10 @@ class TestPaymentRequest(TransactionCase):
         self.assertEqual(request.state, "submitted")
 
     def test_approver_cannot_approve_own_request(self):
+        # The area approver's own request goes to the next level up
         request = self._new_request(self.approver)
         request.action_submit()
+        self.assertEqual(request.approver_id, self.manager)
         with self.assertRaises(AccessError):
             request.action_approve()
 

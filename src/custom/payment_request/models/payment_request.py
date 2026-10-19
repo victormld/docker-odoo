@@ -46,6 +46,9 @@ class PaymentRequest(models.Model):
         index=True,
         tracking=True,
     )
+    approval_level_id = fields.Many2one("payment.approval.level", readonly=True, copy=False)
+    approver_id = fields.Many2one("res.users", string="Approver", readonly=True, copy=False, tracking=True)
+    approval_date = fields.Datetime(readonly=True, copy=False)
 
     @api.constrains("amount")
     def _check_amount(self):
@@ -82,6 +85,40 @@ class PaymentRequest(models.Model):
         if not self.env.user.has_group(group_xmlid):
             raise AccessError(message)
 
+    def _check_approval_rights(self):
+        self._check_group("payment_request.group_payment_request_approver",
+                          _("Only approvers can approve or reject payment requests."))
+        self._check_state("submitted")
+        for request in self:
+            if request.approver_id != self.env.user:
+                raise AccessError(_("Only %(approver)s can approve or reject payment request %(request)s.",
+                                    approver=request.approver_id.name, request=request.name))
+
+    def _find_approval_level(self):
+        """Level that applies to the amount, converted to the company currency.
+
+        Nobody approves their own request: if the level's approver is the requester,
+        the next level up takes the request.
+        """
+        self.ensure_one()
+        company_currency = self.company_id.currency_id
+        amount = self.currency_id._convert(self.amount, company_currency, self.company_id, self.date)
+        levels = self.env["payment.approval.level"].search([("company_id", "=", self.company_id.id)])
+        applicable = levels.filtered(lambda level: company_currency.compare_amounts(level.min_amount, amount) <= 0)
+        if not applicable:
+            raise UserError(_("No approval level applies to payment request %s. "
+                              "Ask your administrator to configure the approval levels.", self.name))
+        candidates = levels.filtered(lambda level: level.min_amount >= applicable[-1].min_amount)
+        level = next((level for level in candidates if level.approver_id != self.requester_id), None)
+        if not level:
+            raise UserError(_("Payment request %s has no approver other than its requester. "
+                              "Ask your administrator to configure the approval levels.", self.name))
+        return level
+
+    def _close_approval_activity(self):
+        for request in self:
+            request.activity_feedback(["mail.mail_activity_data_todo"], user_id=request.approver_id.id)
+
     # -- actions
 
     def action_submit(self):
@@ -89,22 +126,25 @@ class PaymentRequest(models.Model):
         for request in self:
             if request.requester_id != self.env.user:
                 raise AccessError(_("Only the requester can submit payment request %s.", request.name))
-        self.write({"state": "submitted"})
+            level = request._find_approval_level()
+            request.write({"state": "submitted", "approval_level_id": level.id, "approver_id": level.approver_id.id})
+            # The activity is what the approver sees pending, in their own language
+            request.activity_schedule(
+                "mail.mail_activity_data_todo",
+                user_id=level.approver_id.id,
+                summary=request.with_context(lang=level.approver_id.lang).env._(
+                    "Approve or reject payment request %s", request.name),
+            )
 
     def action_approve(self):
-        self._check_group("payment_request.group_payment_request_approver",
-                          _("Only approvers can approve payment requests."))
-        self._check_state("submitted")
-        for request in self:
-            if request.requester_id == self.env.user:
-                raise AccessError(_("You cannot approve your own payment request %s.", request.name))
-        self.write({"state": "approved"})
+        self._check_approval_rights()
+        self.write({"state": "approved", "approval_date": fields.Datetime.now()})
+        self._close_approval_activity()
 
     def action_reject(self):
-        self._check_group("payment_request.group_payment_request_approver",
-                          _("Only approvers can reject payment requests."))
-        self._check_state("submitted")
+        self._check_approval_rights()
         self.write({"state": "rejected"})
+        self._close_approval_activity()
 
     def action_mark_paid(self):
         self._check_group("payment_request.group_payment_request_treasury",
