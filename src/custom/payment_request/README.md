@@ -4,11 +4,21 @@ Módulo para **Odoo 18** que lleva a Odoo las solicitudes de pago a proveedores 
 
 ## Estado por tramo
 
-| Tramo | Estado |
-|---|---|
-| A | Pendiente |
-| B | Pendiente |
-| C | Fuera de alcance (ver *Supuestos y preguntas al cliente*) |
+| Tramo | Estado | Detalle |
+|---|---|---|
+| A | Completo | Solicitud con secuencia, flujo de estados, grupos *Solicitante*, *Aprobador* y *Tesorería*, vistas y menú. Los permisos se validan en el servidor, no solo en los botones. |
+| B | Completo | Niveles de aprobación por monto, actividad para el aprobador, asistente de rechazo con motivo, asistente de pago que crea el `account.payment` de proveedor y reporte PDF. |
+| C | No implementado | Lo que falta y lo que ya cubre Odoo está en *Limitaciones conocidas y pendientes*. |
+
+Además de lo que pide el enunciado: la solicitud muestra el estado contable de su pago y vuelve a *Aprobada* si contabilidad cancela o rechaza ese pago, y todos los textos están traducidos al español.
+
+## Qué hace
+
+- **Cualquier empleado** crea una solicitud de pago: proveedor, monto, moneda, fecha y concepto. Se numera `SP/2026/0001` y, una vez enviada, ya no se puede modificar.
+- **Al enviarla**, Odoo elige el nivel de aprobación según el monto, le asigna el aprobador de ese nivel y le crea una actividad.
+- **Solo el aprobador asignado** la aprueba o la rechaza. El rechazo pide un motivo, que queda en el historial y le llega al solicitante.
+- **Tesorería** paga las solicitudes aprobadas con un asistente: elige el diario de banco o de caja y la fecha, y el módulo crea y publica el pago a proveedor de Contabilidad, vinculado a la solicitud.
+- **El PDF** de la solicitud muestra quién la aprobó y cuándo, y los datos del pago.
 
 ## Análisis del requerimiento
 
@@ -23,7 +33,7 @@ Las solicitudes de pago a proveedores llegan por WhatsApp. No quedan registradas
 | **Solicitante** (cualquier empleado) | Pide el pago: proveedor, monto, moneda y concepto. Una vez enviada, ya no puede cambiar la solicitud. |
 | **Aprobador** | Aprueba o rechaza. Los pagos normales los aprueba el jefe del área y los grandes, gerencia. Si rechaza, dice por qué. |
 | **Tesorería** | Paga las solicitudes aprobadas desde un diario de banco o de caja. |
-| **Contabilidad** | Recibe el pago ya registrado y lo concilia con la factura del proveedor. |
+| **Contabilidad** | Recibe el pago ya registrado y lo concilia con la factura del proveedor. Si cancela o rechaza el pago, la solicitud vuelve a *Aprobada*. |
 
 ### Flujo propuesto
 
@@ -34,6 +44,7 @@ stateDiagram-v2
     Enviada --> Aprobada: el aprobador asignado aprueba
     Enviada --> Rechazada: el aprobador asignado rechaza, con motivo
     Aprobada --> Pagada: tesorería registra el pago
+    Pagada --> Aprobada: contabilidad cancela, rechaza o elimina el pago
     Pagada --> [*]
     Rechazada --> [*]
 ```
@@ -42,7 +53,7 @@ stateDiagram-v2
 - **Enviada:** ya no se puede modificar. Odoo elige el aprobador según el monto y le crea una tarea.
 - **Aprobada:** queda registrado quién aprobó y cuándo.
 - **Rechazada:** el motivo queda en el historial de la solicitud y el solicitante recibe el aviso.
-- **Pagada:** existe un pago contable a proveedor vinculado a la solicitud, y la solicitud se puede imprimir para la carpeta del proveedor.
+- **Pagada:** existe un pago contable a proveedor vinculado a la solicitud, y la solicitud se puede imprimir para la carpeta del proveedor. La solicitud muestra aparte el estado contable de ese pago (*En proceso* o *Pagado*).
 
 ### Lo que el correo pide sin decirlo
 
@@ -72,6 +83,101 @@ Antes de programar se revisó qué resuelve Odoo 18 sin un módulo nuevo:
 
 El módulo solo agrega lo que falta: la solicitud con su flujo, los niveles de aprobación, el control de quién puede hacer cada paso y el vínculo con el pago contable.
 
+## Decisiones de diseño
+
+### Permisos
+
+| Grupo | Ve | Puede |
+|---|---|---|
+| *Solicitante* (todo usuario interno) | Solo sus solicitudes | Crearlas, editarlas y eliminarlas mientras están en borrador, y enviarlas |
+| *Aprobador* | Todas | Aprobar o rechazar las que tiene asignadas |
+| *Tesorería* (incluye el grupo *Facturación* de Contabilidad, necesario para registrar pagos) | Todas | Pagar las aprobadas |
+| Administrador (*Ajustes*) | — | Configurar los niveles de aprobación |
+
+- **Las reglas valen en el servidor.** Los botones se ocultan según el estado y el grupo, pero cada acción vuelve a comprobar en Python el grupo, el estado y, al aprobar o rechazar, que el usuario sea el aprobador asignado. Llamar al método directamente, por ejemplo por RPC, da el mismo error que el botón. Los campos del negocio (proveedor, monto, moneda, concepto, fecha, solicitante) se bloquean en `write` después de enviar, y solo se eliminan borradores.
+- **`sudo()` en dos lugares, a propósito:**
+  1. Los datos del pago que muestra la solicitud (referencia, fecha, diario y estado) son campos relacionados, que Odoo calcula como superusuario. Así el solicitante los ve sin tener acceso a Contabilidad, y solo ve esos cuatro datos.
+  2. Cuando contabilidad cancela, rechaza o elimina un pago, la solicitud se actualiza con `sudo()`, porque el contador puede no tener acceso a ella por la regla de registro. Solo cambia el estado y el vínculo, y deja una nota en el historial.
+- **El botón del pago hacia su solicitud** solo lo ven aprobadores y tesorería. Un contador sin esos roles ve el número de la solicitud en la referencia (*memo*) del pago.
+
+### Niveles de aprobación
+
+- Cada nivel tiene un monto mínimo, en la moneda de la compañía, y un aprobador, que debe tener el grupo *Aprobador*.
+- Al enviar, el monto se convierte a la moneda de la compañía con la tasa de la fecha de la solicitud, y se toma el nivel con el mayor monto mínimo que ese valor alcanza.
+- Si el aprobador de ese nivel es el propio solicitante, la solicitud pasa al nivel siguiente. Si no hay nivel aplicable, o no hay otro aprobador, el envío falla con un mensaje que dice qué configurar.
+- El aprobador recibe una actividad *Por hacer*, con el resumen en su idioma. Se cierra al aprobar o rechazar.
+- El solicitante queda como seguidor de su solicitud al enviarla, así que recibe el aviso del rechazo con el motivo.
+
+### El pago y su estado contable
+
+- El asistente crea un `account.payment` de salida a proveedor por el monto y la moneda de la solicitud, con el diario y la fecha elegidos y el número de la solicitud como referencia. Lo publica, lo vincula a la solicitud en ambos sentidos y deja la solicitud *Pagada*.
+- **No se puede pagar dos veces:** el pago exige que la solicitud esté *Aprobada*, y al pagar deja de estarlo.
+- **"Pagada" significa que tesorería registró el pago** (supuesto 15). El estado contable del pago se muestra aparte, en el formulario, la lista y el PDF:
+  - **En proceso:** el pago está en contabilidad, contra la cuenta de pagos pendientes del diario, pero falta confirmarlo.
+  - **Pagado:** contabilidad lo concilió. En Odoo Community la conciliación bancaria no existe (es de Enterprise), así que el pago pasa a *Pagado* cuando contabilidad lo concilia con la factura del proveedor, con el botón *Agregar* que aparece en la factura.
+- **Si contabilidad cancela, rechaza o elimina el pago**, la solicitud vuelve a *Aprobada* con una nota en el historial, y tesorería la puede pagar de nuevo. Un pago devuelto a borrador conserva su solicitud, porque se corrige y se vuelve a publicar. Un pago ya reemplazado por otro no afecta la solicitud.
+
+### Reporte PDF
+
+Se imprime desde la solicitud (*Imprimir › Solicitud de pago*): número, proveedor, solicitante, fecha, monto, concepto y estado; quién aprobó y cuándo, o quién rechazó y por qué; y la referencia, el estado, la fecha y el diario del pago. Usa el encabezado de la compañía. El solicitante también lo puede imprimir.
+
+## Traducción al español
+
+Los textos del módulo están en inglés, el idioma fuente de Odoo, y la traducción está en `i18n/es.po`. Odoo la usa para cualquier variante de español (es_VE, es_ES, es_419…). La plantilla de la que sale es `i18n/payment_request.pot`.
+
+- **121 textos.** Los 78 del módulo se tradujeron a mano. Las 43 etiquetas estándar que el modelo hereda de Odoo ("Seguidores", "Creado por", "Actividades"…) usan la traducción oficial de Odoo: la de Latinoamérica (es_419) cuando existe, y si no, la general.
+- **"Monto" y no "Importe"**, que es como lo traduce Odoo: en Venezuela se dice "monto". Los estados están en femenino porque se refieren a la solicitud: *Enviada*, *Aprobada*, *Pagada*, *Rechazada*.
+- **Nombre y resumen del módulo:** Odoo no los incluye al exportar la plantilla, así que se agregaron a mano (`model:ir.module.module,shortdesc:base.module_payment_request` y `summary`). El nombre es el mismo texto que el menú, así que es una ocurrencia más de esa entrada. Si se vuelve a exportar la plantilla, hay que conservarlas.
+- **Verificación:** se comprobó con el lector de Odoo que todos los textos tienen traducción, que cada traducción conserva los mismos marcadores (`%s`, `%(approver)s`…) y etiquetas HTML que el original, y que el nombre del PDF sigue siendo Python válido. Las pruebas de `tests/test_translation.py` cargan el español y verifican etiquetas, estados, nombre del módulo, mensajes con su variable, la actividad en el idioma del aprobador y la nota del pago rechazado con el estado traducido.
+
+**Para verlo en español:** *Ajustes › Idiomas › Activar*, elegir el español y cambiarlo en las preferencias del usuario. Si el idioma se instala desde la consola con `--load-language`, Odoo lo carga antes que los módulos y los menús y grupos del módulo quedan en inglés hasta actualizarlo con `-u payment_request`.
+
+## Puesta en marcha
+
+1. **Moneda de la compañía: VES.** Odoo todavía asocia Venezuela con el VEF (bolívar fuerte), reemplazado por el VES en 2018, y al instalar el plan contable venezolano la compañía queda en VEF. Hay que cambiarla a VES en *Ajustes › Contabilidad* **antes del primer asiento**, porque después Odoo no lo permite, y archivar el VEF para que no aparezca al elegir moneda.
+2. **Tasas de cambio:** contabilidad carga la tasa del dólar en *Contabilidad › Configuración › Monedas*. Para elegir el nivel, la solicitud usa la tasa de su fecha.
+3. **Correo de cada usuario:** Odoo lo exige para registrar mensajes y avisar de actividades. Un usuario sin correo no puede enviar ni rechazar solicitudes ("configure the sender's email address").
+4. **Grupos:** todo usuario interno ya es *Solicitante*. En el usuario, sección *Solicitudes de pago*, se marca *Aprobador* o *Tesorería*. Al instalar, el administrador queda en los dos.
+5. **Niveles de aprobación:** *Solicitudes de pago › Configuración › Niveles de aprobación* (solo el administrador). Por ejemplo: "Área" desde 0 VES con el jefe de área, y "Gerencia" desde 50.000 VES con el gerente.
+6. **Opcional, decisión de contabilidad:** para que los pagos queden *Pagado* en el momento de registrarlos, se pone la cuenta del banco como cuenta de pagos pendientes en el método de pago saliente del diario (*Contabilidad › Configuración › Diarios › Banco › Pagos salientes*). Se pierde el paso de confirmar el pago contra el extracto del banco.
+
+## Cómo probarlo
+
+### Pruebas automáticas
+
+```bash
+./odoo test prueba_tecnica payment_request -d prueba_limpia
+```
+
+Son 33 pruebas y cubren el 99% del código. Todas actúan con usuarios reales de cada grupo, nunca como superusuario, para que los permisos se prueben de verdad. Cada criterio del enunciado tiene su prueba:
+
+| Criterio del enunciado | Prueba |
+|---|---|
+| **A** — El solicitante ve solo sus solicitudes | `test_requester_sees_only_own_requests` |
+| **A** — No puede aprobar, ni desde el botón ni llamando al método | `test_requester_cannot_approve`, `test_buttons_only_for_their_group` |
+| **A** — Una solicitud enviada no se edita | `test_submitted_request_cannot_be_modified` |
+| **A** — No se permite un monto cero o negativo | `test_amount_must_be_positive` |
+| **A** — Los botones aparecen solo en el estado y el grupo que corresponde | `test_buttons_only_for_their_group`, `test_actions_only_in_their_status` |
+| **A** — El flujo completo | `test_full_flow` |
+| **B** — Solo el aprobador asignado puede aprobar | `test_only_assigned_approver_decides` |
+| **B** — El motivo de rechazo queda en el chatter | `test_reject_requires_reason_and_posts_it` |
+| **B** — El pago queda vinculado y visible desde la solicitud | `test_payment_creates_posted_supplier_payment`, `test_payment_and_request_are_linked_both_ways` |
+| **B** — Una solicitud no se puede pagar dos veces | `test_request_cannot_be_paid_twice` |
+| **B** — El PDF muestra quién aprobó y cuándo | `test_report_shows_who_approved_and_when` |
+
+Las demás cubren la elección del nivel (también en otra moneda), la actividad del aprobador, el estado contable del pago y su reversión, y la traducción.
+
+### Prueba manual
+
+Con la configuración de *Puesta en marcha*, un usuario por rol (solicitante, jefe de área, gerente y tesorero) y dos niveles:
+
+1. **Solicitante:** crea una solicitud de 500 VES y la envía. Queda asignada al jefe de área, que recibe una actividad.
+2. **Jefe de área:** con el filtro *Por aprobar*, abre la solicitud y la aprueba.
+3. **Tesorero:** *Pagar*, elige el diario y la fecha, y *Registrar pago*. La solicitud queda *Pagada*, con el pago *En proceso* y un botón para abrirlo; desde el pago, otro botón vuelve a la solicitud.
+4. **Imprimir › Solicitud de pago:** el PDF muestra quién aprobó y cuándo, y el pago.
+5. Una solicitud de 2.000 USD (más de 50.000 VES a la tasa del día) va al gerente. Si el gerente la rechaza con un motivo, el solicitante recibe el aviso.
+6. **Contabilidad:** en un pago de una solicitud, *Marcar como enviado* y *Rechazar*, o *Cancelar*. La solicitud vuelve a *Aprobada* con una nota.
+
 ## Supuestos y preguntas al cliente
 
 Preguntas para Carolina y el supuesto con el que se avanzó mientras no hay respuesta. Si la respuesta cambia, se ajusta la configuración o el módulo.
@@ -92,3 +198,24 @@ Preguntas para Carolina y el supuesto con el que se avanzó mientras no hay resp
 | 12 | ¿Quién define los niveles y los montos de aprobación? | El administrador del sistema. |
 | 13 | ¿Qué pasa si el aprobador está de vacaciones o ausente? | Un administrador cambia el aprobador del nivel. Las solicitudes ya enviadas conservan el aprobador que tenían. |
 | 14 | "Cualquier empleado puede pedir un pago": ¿todos los usuarios de Odoo? | Sí: todo usuario interno puede crear solicitudes. |
+| 15 | ¿Cuándo está "pagada" una solicitud: cuando tesorería registra el pago o cuando el banco lo confirma? | Cuando tesorería registra el pago. El estado contable del pago (*En proceso* o *Pagado*) se muestra aparte en la solicitud y en el PDF. |
+| 16 | Si contabilidad cancela o rechaza un pago ya registrado, ¿qué pasa con la solicitud? | Vuelve a *Aprobada*, con una nota en el historial, y tesorería la paga de nuevo. Un pago devuelto a borrador para corregirlo conserva su solicitud. |
+| 17 | ¿Contabilidad necesita ver las solicitudes? | Solo quien tenga el rol de aprobador o de tesorería. El resto de contabilidad ve el número de la solicitud en la referencia del pago. |
+
+## Limitaciones conocidas y pendientes
+
+**Tramo C, no implementado.** Para cada punto, lo que ya hace el módulo y lo que falta:
+
+- **Solicitud en USD pagada desde un diario en VES:** hoy el pago se crea en la moneda de la solicitud, USD, aunque el diario sea en bolívares, y Odoo registra el asiento en VES con la tasa de la fecha del pago. Falta que el pago se haga por el monto en VES y una prueba que verifique ese monto.
+- **Varias compañías:** solicitudes y niveles tienen compañía y reglas de registro por compañía, pero no hay pruebas con dos compañías.
+- **Dos aprobadores al mismo tiempo:** cada solicitud tiene un solo aprobador asignado, lo que reduce el caso, pero no hay bloqueo en la base de datos. Dos sesiones que aprueban y rechazan a la vez no están protegidas.
+- **Falla al crear el pago:** el pago y el cambio a *Pagada* ocurren en la misma transacción; si publicar el pago falla, Odoo revierte todo y la solicitud sigue *Aprobada*. No hay prueba que lo demuestre.
+- **`ARCHITECTURE.md`:** no se escribió.
+
+**Otras limitaciones:**
+
+- **En Odoo Community el pago queda *En proceso*** hasta que contabilidad lo concilia con la factura del proveedor, porque la conciliación bancaria es de Enterprise. La alternativa es la configuración opcional del punto 6 de *Puesta en marcha*.
+- **Odoo no deja eliminar un pago que ya tomó número** si no es el último de la secuencia; contabilidad tiene que cancelarlo o rechazarlo. En los dos casos la solicitud vuelve a *Aprobada*.
+- **Un pago cancelado que contabilidad vuelve a publicar no vuelve a la solicitud**, que ya está *Aprobada* o pagada con otro pago. Evitar un pago duplicado en ese caso queda en manos de contabilidad.
+- **El nivel se elige al enviar.** Si después cambian los niveles o el aprobador, las solicitudes enviadas conservan el que tenían (supuesto 13).
+- **Sin tasa del día**, Odoo usa la última tasa anterior a la fecha de la solicitud, o la primera posterior si no hay anteriores. Si la moneda no tiene ninguna tasa cargada, la convierte 1 a 1, y el nivel elegido puede ser el equivocado.
