@@ -134,6 +134,8 @@ class PaymentRequest(models.Model):
                 raise AccessError(_("Only the requester can submit payment request %s.", request.name))
             level = request._find_approval_level()
             request.write({"state": "submitted", "approval_level_id": level.id, "approver_id": level.approver_id.id})
+            # Explicit, not left to the automatic subscription: the requester must hear about the decision
+            request.message_subscribe(partner_ids=request.requester_id.partner_id.ids)
             # The activity is what the approver sees pending, in their own language
             request.activity_schedule(
                 "mail.mail_activity_data_todo",
