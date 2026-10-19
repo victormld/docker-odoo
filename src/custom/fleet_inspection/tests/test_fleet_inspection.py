@@ -10,16 +10,16 @@ class TestFleetInspection(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super(TestFleetInspection, cls).setUpClass()
-        brand = cls.env["fleet.vehicle.model.brand"].create({"name": "Marca de prueba"})
-        model = cls.env["fleet.vehicle.model"].create({"name": "Modelo de prueba", "brand_id": brand.id})
+        brand = cls.env["fleet.vehicle.model.brand"].create({"name": "Test Brand"})
+        model = cls.env["fleet.vehicle.model"].create({"name": "Test Model", "brand_id": brand.id})
         cls.vehicle = cls.env["fleet.vehicle"].create({"model_id": model.id, "license_plate": "AB123CD"})
         cls.inspector = cls.env["res.users"].create({
-            "name": "Inspector de prueba",
+            "name": "Test Inspector",
             "login": "inspector_test",
             "groups_id": [(6, 0, [cls.env.ref("fleet_inspection.group_fleet_inspection_user").id])],
         })
         cls.other_inspector = cls.env["res.users"].create({
-            "name": "Otro inspector",
+            "name": "Other Inspector",
             "login": "other_inspector_test",
             "groups_id": [(6, 0, [cls.env.ref("fleet_inspection.group_fleet_inspection_user").id])],
         })

@@ -3,13 +3,13 @@ from odoo import fields, models
 
 class FleetInspectionItem(models.Model):
     _name = "fleet.inspection.item"
-    _description = "Punto del checklist de inspección"
+    _description = "Inspection Checklist Point"
     _order = "sequence, id"
 
-    name = fields.Char(string="Punto a revisar", required=True, translate=True)
+    name = fields.Char(string="Point to Check", required=True, translate=True)
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
     critical = fields.Boolean(
-        string="Crítico",
-        help="Si un punto crítico falla, la inspección no se puede aprobar.",
+        string="Critical",
+        help="If a critical point fails, the inspection cannot be approved.",
     )

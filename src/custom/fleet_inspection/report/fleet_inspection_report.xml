@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="action_report_fleet_inspection" model="ir.actions.report">
-        <field name="name">Inspección</field>
+        <field name="name">Inspection</field>
         <field name="model">fleet.inspection</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">fleet_inspection.report_fleet_inspection</field>
         <field name="report_file">fleet_inspection.report_fleet_inspection</field>
-        <field name="print_report_name">'Inspección - %s' % object.name</field>
+        <field name="print_report_name">'Inspection - %s' % object.name</field>
         <field name="binding_model_id" ref="model_fleet_inspection"/>
         <field name="binding_type">report</field>
     </record>
@@ -16,17 +16,17 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <h2>Inspección <span t-esc="o.name"/></h2>
+                        <h2>Inspection <span t-esc="o.name"/></h2>
                         <p>
-                            <strong>Vehículo:</strong> <span t-esc="o.vehicle_id.display_name"/><br/>
-                            <strong>Tipo:</strong> <span t-field="o.vehicle_type"/><br/>
+                            <strong>Vehicle:</strong> <span t-esc="o.vehicle_id.display_name"/><br/>
+                            <strong>Type:</strong> <span t-field="o.vehicle_type"/><br/>
                             <strong>Inspector:</strong> <span t-esc="o.inspector_id.name"/><br/>
-                            <strong>Fecha:</strong> <span t-field="o.date"/><br/>
-                            <strong>Estado:</strong> <span t-field="o.state"/>
+                            <strong>Date:</strong> <span t-field="o.date"/><br/>
+                            <strong>Status:</strong> <span t-field="o.state"/>
                         </p>
                         <table class="table table-sm">
                             <thead>
-                                <tr><th>Punto</th><th>Resultado</th><th>Comentario</th></tr>
+                                <tr><th>Point</th><th>Result</th><th>Comment</th></tr>
                             </thead>
                             <tbody>
                                 <tr t-foreach="o.line_ids" t-as="line">
@@ -36,7 +36,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <p t-if="o.notes"><strong>Observaciones:</strong> <span t-esc="o.notes"/></p>
+                        <p t-if="o.notes"><strong>Notes:</strong> <span t-esc="o.notes"/></p>
                     </div>
                 </t>
             </t>

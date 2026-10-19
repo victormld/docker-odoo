@@ -14,7 +14,7 @@
     </record>
 
     <record id="fleet_inspection_item_action" model="ir.actions.act_window">
-        <field name="name">Puntos del checklist</field>
+        <field name="name">Checklist Points</field>
         <field name="res_model">fleet.inspection.item</field>
         <field name="view_mode">tree</field>
     </record>
