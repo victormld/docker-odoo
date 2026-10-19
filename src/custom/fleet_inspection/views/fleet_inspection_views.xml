@@ -12,7 +12,7 @@
                 <field name="inspector_id" widget="many2one_avatar_user"/>
                 <field name="date"/>
                 <field name="failed_count"/>
-                <field name="is_overdue" invisible="1"/>
+                <field name="is_overdue" column_invisible="True"/>
                 <field name="state" widget="badge"/>
             </list>
         </field>
@@ -59,10 +59,10 @@
                         <page string="Checklist" name="checklist">
                             <field name="line_ids" readonly="state in ('approved', 'rejected')">
                                 <list editable="bottom" create="0" decoration-danger="result == 'fail'">
-                                    <field name="sequence" invisible="1"/>
+                                    <field name="sequence" column_invisible="True"/>
                                     <field name="item_id" readonly="1" force_save="1"/>
                                     <field name="critical"/>
-                                    <field name="state" invisible="1"/>
+                                    <field name="state" column_invisible="True"/>
                                     <field name="result" required="state == 'in_progress'"/>
                                     <field name="comment"/>
                                 </list>
