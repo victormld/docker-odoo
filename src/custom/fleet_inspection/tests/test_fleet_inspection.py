@@ -2,14 +2,14 @@ from datetime import timedelta
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tests.common import Form, TransactionCase, tagged
+from odoo.tests import Form, TransactionCase, tagged
 
 
 @tagged("post_install", "-at_install")
 class TestFleetInspection(TransactionCase):
     @classmethod
     def setUpClass(cls):
-        super(TestFleetInspection, cls).setUpClass()
+        super().setUpClass()
         brand = cls.env["fleet.vehicle.model.brand"].create({"name": "Test Brand"})
         model = cls.env["fleet.vehicle.model"].create({"name": "Test Model", "brand_id": brand.id})
         cls.vehicle = cls.env["fleet.vehicle"].create({"model_id": model.id, "license_plate": "AB123CD"})
@@ -23,6 +23,11 @@ class TestFleetInspection(TransactionCase):
             "login": "other_inspector_test",
             "groups_id": [(6, 0, [cls.env.ref("fleet_inspection.group_fleet_inspection_user").id])],
         })
+        cls.supervisor = cls.env["res.users"].create({
+            "name": "Test Supervisor",
+            "login": "supervisor_test",
+            "groups_id": [(6, 0, [cls.env.ref("fleet_inspection.group_fleet_inspection_manager").id])],
+        })
 
     def _new_inspection(self, **vals):
         values = {"vehicle_id": self.vehicle.id, "vehicle_type": "truck", "inspector_id": self.inspector.id}
@@ -35,9 +40,13 @@ class TestFleetInspection(TransactionCase):
         items = self.env["fleet.inspection.item"].search([])
         self.assertEqual(inspection.line_ids.mapped("item_id"), items)
 
-    def test_name_get_includes_plate(self):
+    def test_display_name_includes_plate(self):
+        # Odoo 18 no longer calls name_get: the visible name comes from display_name
         inspection = self._new_inspection()
-        self.assertIn("AB123CD", inspection.name_get()[0][1])
+        self.assertEqual(inspection.display_name, f"{inspection.name} - AB123CD")
+        no_plate = self.env["fleet.vehicle"].create({"model_id": self.vehicle.model_id.id})
+        inspection.vehicle_id = no_plate
+        self.assertEqual(inspection.display_name, f"{inspection.name} - {no_plate.name}")
 
     def test_full_flow_approved(self):
         inspection = self._new_inspection()
@@ -91,3 +100,52 @@ class TestFleetInspection(TransactionCase):
         self.env["fleet.inspection"]._cron_mark_overdue()
         self.assertTrue(inspection.is_overdue)
         self.assertEqual(len(inspection.activity_ids), 1)
+
+    def test_fields_editable_by_state(self):
+        inspection = self._new_inspection()
+        with Form(inspection) as form:
+            form.vehicle_id = self.vehicle
+            form.date = fields.Date.today()
+        inspection.action_start()
+        form = Form(inspection)
+        for field_name in ("vehicle_id", "vehicle_type", "date"):
+            with self.subTest(field=field_name), self.assertRaises(AssertionError):
+                setattr(form, field_name, inspection[field_name])
+        form.odometer = 1500
+        form.save()
+        inspection.line_ids.write({"result": "ok"})
+        inspection.action_approve()
+        with self.assertRaises(AssertionError):
+            Form(inspection).odometer = 2000
+
+    def test_start_requires_checklist(self):
+        inspection = self._new_inspection()
+        inspection.line_ids.unlink()
+        with self.assertRaises(UserError):
+            inspection.action_start()
+        self.assertEqual(inspection.state, "draft")
+
+    def test_reset_rejected_to_draft(self):
+        inspection = self._new_inspection()
+        inspection.action_start()
+        inspection.action_reject()
+        inspection.action_reset_draft()
+        self.assertEqual(inspection.state, "draft")
+
+    def test_only_drafts_can_be_deleted(self):
+        started = self._new_inspection()
+        started.action_start()
+        with self.assertRaises(UserError):
+            started.with_user(self.supervisor).unlink()
+        draft = self._new_inspection()
+        draft.with_user(self.supervisor).unlink()
+        self.assertFalse(draft.exists())
+
+    def test_report_renders(self):
+        inspection = self._new_inspection()
+        html, _report_type = self.env["ir.actions.report"]._render_qweb_html(
+            "fleet_inspection.action_report_fleet_inspection", inspection.ids)
+        html = html.decode()
+        type_label = dict(inspection._fields["vehicle_type"]._description_selection(self.env))[inspection.vehicle_type]
+        for expected in (inspection.name, "AB123CD", type_label):
+            self.assertIn(expected, html)
