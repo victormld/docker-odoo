@@ -23,7 +23,7 @@ Migración a **Odoo 18** del módulo de inspecciones de vehículos escrito para 
 
 | Qué cambió | Por qué | Cómo lo resolví |
 |---|---|---|
-| Ubicación y versión (`16.0.1.0.0` → `18.0.2.0.0`) | Odoo 18 rechaza una versión 16.0 ("invalid manifest") y, con el módulo en sus rutas de addons, deja de poder crear bases. | Copia en `src/custom/fleet_inspection` con la versión nueva; el original queda como referencia. |
+| Ubicación y versión (`16.0.1.0.0` → `18.0.2.0.0`) | Odoo 18 rechaza una versión 16.0 ("invalid manifest") y, con el módulo en sus rutas de addons, deja de poder crear bases. | Copia en `src/custom/prueba-tecnica/fleet_inspection` con la versión nueva; el original queda como referencia. |
 | `<tree>` → `<list>` | Odoo 18 ya no tiene el tipo de vista `tree`: el módulo no instalaba. | Raíz de las vistas de lista y `view_mode` de las acciones. |
 | `attrs` y `states` en las vistas | Desde 17.0 son un `ValidationError` al instalar. | Expresiones de Python en `invisible`, `readonly` y `required` (botones por estado, alerta de vencida, campos bloqueados y resultado obligatorio en curso). |
 | `invisible="1"` en columnas de listas | En Odoo 18, en una lista `invisible` solo vacía cada celda y la columna se sigue viendo; para ocultarla hay que usar `column_invisible`. | `column_invisible="True"` en "Vencida" (lista de inspecciones), "Activo" (puntos del checklist) y "Secuencia" y "Estado" (checklist del formulario). |
