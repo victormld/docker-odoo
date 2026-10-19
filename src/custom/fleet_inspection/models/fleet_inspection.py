@@ -3,13 +3,6 @@ from datetime import timedelta
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-VEHICLE_TYPES = [
-    ("motorcycle", "Motorcycle"),
-    ("car", "Car"),
-    ("truck", "Truck"),
-    ("other", "Other"),
-]
-
 
 class FleetInspection(models.Model):
     _name = "fleet.inspection"
@@ -24,12 +17,13 @@ class FleetInspection(models.Model):
         required=True,
         tracking=True,
     )
-    vehicle_type = fields.Selection(
-        VEHICLE_TYPES,
+    vehicle_type_id = fields.Many2one(
+        "fleet.inspection.vehicle.type",
         string="Vehicle Type",
         required=True,
-        default="car",
+        ondelete="restrict",
         tracking=True,
+        default=lambda self: self._default_vehicle_type_id(),
     )
     inspector_id = fields.Many2one(
         "res.users",
@@ -65,6 +59,9 @@ class FleetInspection(models.Model):
     _sql_constraints = [
         ("name_uniq", "unique(name)", "The inspection number must be unique."),
     ]
+
+    def _default_vehicle_type_id(self):
+        return self.env.ref("fleet_inspection.vehicle_type_car", raise_if_not_found=False)
 
     @api.depends("line_ids.result")
     def _compute_counts(self):

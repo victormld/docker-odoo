@@ -30,7 +30,11 @@ class TestFleetInspection(TransactionCase):
         })
 
     def _new_inspection(self, **vals):
-        values = {"vehicle_id": self.vehicle.id, "vehicle_type": "truck", "inspector_id": self.inspector.id}
+        values = {
+            "vehicle_id": self.vehicle.id,
+            "vehicle_type_id": self.env.ref("fleet_inspection.vehicle_type_truck").id,
+            "inspector_id": self.inspector.id,
+        }
         values.update(vals)
         return self.env["fleet.inspection"].create(values)
 
@@ -91,7 +95,7 @@ class TestFleetInspection(TransactionCase):
         form.vehicle_id = self.vehicle
         inspection = form.save()
         self.assertEqual(inspection.inspector_id, self.inspector)
-        self.assertEqual(inspection.vehicle_type, "car")
+        self.assertEqual(inspection.vehicle_type_id, self.env.ref("fleet_inspection.vehicle_type_car"))
 
     def test_cron_marks_overdue_once(self):
         inspection = self._new_inspection(date=fields.Date.today() - timedelta(days=10))
@@ -108,7 +112,7 @@ class TestFleetInspection(TransactionCase):
             form.date = fields.Date.today()
         inspection.action_start()
         form = Form(inspection)
-        for field_name in ("vehicle_id", "vehicle_type", "date"):
+        for field_name in ("vehicle_id", "vehicle_type_id", "date"):
             with self.subTest(field=field_name), self.assertRaises(AssertionError):
                 setattr(form, field_name, inspection[field_name])
         form.odometer = 1500
@@ -146,6 +150,5 @@ class TestFleetInspection(TransactionCase):
         html, _report_type = self.env["ir.actions.report"]._render_qweb_html(
             "fleet_inspection.action_report_fleet_inspection", inspection.ids)
         html = html.decode()
-        type_label = dict(inspection._fields["vehicle_type"]._description_selection(self.env))[inspection.vehicle_type]
-        for expected in (inspection.name, "AB123CD", type_label):
+        for expected in (inspection.name, "AB123CD", inspection.vehicle_type_id.name):
             self.assertIn(expected, html)
