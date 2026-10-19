@@ -142,5 +142,8 @@ class TestPaymentRequest(TransactionCase):
         for user in (self.requester, self.treasury):
             with self.subTest(user=user.login), self.assertRaises(AccessError):
                 request.with_user(user).action_reject()
-        request.with_user(self.approver).action_reject()
+        self.env["payment.request.reject.wizard"].with_user(self.approver).create({
+            "request_id": request.id,
+            "reason": "Duplicated invoice",
+        }).action_reject()
         self.assertEqual(request.state, "rejected")

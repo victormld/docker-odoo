@@ -49,6 +49,7 @@ class PaymentRequest(models.Model):
     approval_level_id = fields.Many2one("payment.approval.level", readonly=True, copy=False)
     approver_id = fields.Many2one("res.users", string="Approver", readonly=True, copy=False, tracking=True)
     approval_date = fields.Datetime(readonly=True, copy=False)
+    rejection_reason = fields.Text(readonly=True, copy=False)
 
     @api.constrains("amount")
     def _check_amount(self):
@@ -143,7 +144,25 @@ class PaymentRequest(models.Model):
 
     def action_reject(self):
         self._check_approval_rights()
-        self.write({"state": "rejected"})
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reject Payment Request"),
+            "res_model": "payment.request.reject.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_request_id": self.id},
+        }
+
+    def _reject(self, reason):
+        self._check_approval_rights()
+        if not (reason or "").strip():
+            raise UserError(_("Explain why the payment request is rejected: the requester needs to know."))
+        self.write({"state": "rejected", "rejection_reason": reason})
+        for request in self:
+            # A comment, not a note: it notifies the followers, starting with the requester
+            request.message_post(body=_("Payment request rejected. Reason: %s", reason),
+                                 subtype_xmlid="mail.mt_comment")
         self._close_approval_activity()
 
     def action_mark_paid(self):

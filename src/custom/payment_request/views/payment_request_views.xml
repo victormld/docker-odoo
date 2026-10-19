@@ -62,6 +62,7 @@
                     <group>
                         <field name="concept" readonly="state != 'draft'"
                                placeholder="What is being paid and why"/>
+                        <field name="rejection_reason" invisible="not rejection_reason"/>
                     </group>
                 </sheet>
                 <chatter/>
