@@ -109,7 +109,7 @@ Son 8 pruebas: las 4 originales y las 4 del ticket.
 ./odoo test prueba_tecnica shop_integration_api,fleet_inspection,sale_commission,payment_request -d prueba_limpia
 ```
 
-El script crea la base `prueba_limpia`, instala los cuatro módulos juntos, corre sus pruebas y borra la base al terminar. Resultado: **71 pruebas, 0 fallas, 95% de cobertura** (14 de `shop_integration_api`, 20 de `fleet_inspection`, 4 de `sale_commission` y 33 de `payment_request`).
+El script crea la base `prueba_limpia`, instala los cuatro módulos juntos, corre sus pruebas y borra la base al terminar. Resultado: **74 pruebas, 0 fallas, 96% de cobertura** (14 de `shop_integration_api`, 20 de `fleet_inspection`, 4 de `sale_commission` y 36 de `payment_request`).
 
 El comando del enunciado (`./odoo test -d prueba_limpia -m …`) no indica la instancia; en este repositorio el script la pide de forma interactiva.
 
@@ -138,4 +138,4 @@ Usé Claude Code en los cuatro ejercicios y, en el tramo A del ejercicio 1, tamb
 
 ## Sobre este repositorio
 
-Es un fork de [binaural-dev/docker-odoo](https://github.com/binaural-dev/docker-odoo), un entorno para levantar varias instancias de Odoo con Docker. La documentación completa de la herramienta (el CLI `./odoo`, todas las opciones de `instances.json`, bases de datos y subdominios) está en el [readme de la raíz](../../readme.md).
+Es un fork de [binaural-dev/docker-odoo](https://github.com/binaural-dev/docker-odoo), un entorno para levantar varias instancias de Odoo con Docker. La documentación completa de la herramienta (el CLI `./odoo`, todas las opciones de `instances.json`, bases de datos y subdominios) está en el README de ese repositorio.
