@@ -13,8 +13,12 @@ Compatible con Linux y macOS (AMD y ARM).
 |---|---|---|
 | 1. Integración con API para una tienda en línea | `src/custom/shop_integration_api` | [README](src/custom/shop_integration_api/README.md) |
 | 2. Migración del módulo de inspecciones | `src/custom/fleet_inspection` | [README](src/custom/fleet_inspection/README.md) |
+| 3. Ticket urgente de última hora | `src/custom/prueba-tecnica/sale_commission` | [Pull request](https://github.com/victormld/docker-odoo/pull/1) de la rama `hotfix/T-200`, con su `INCIDENT.md` |
+| 4. Solicitudes de pago con aprobación | `src/custom/payment_request` | [README](src/custom/payment_request/README.md) |
 
-Los módulos de los ejercicios 1 y 2 están en `src/custom/`, así que la instancia necesita esa carpeta en sus addons, además de `src/custom/prueba-tecnica` para los módulos que ya traía el repositorio. El módulo original de Odoo 16 queda sin cambios en `src/custom/prueba-tecnica-odoo16/fleet_inspection`, como referencia: esa carpeta **no** debe estar en los addons de la instancia de Odoo 18, que rechaza su versión 16.0 y deja de poder crear bases.
+La corrección del ejercicio 3 se entrega como pull request, como pide el enunciado: hasta que se integre, las demás ramas tienen `sale_commission` como estaba antes del ticket.
+
+Los módulos de los ejercicios 1, 2 y 4 están en `src/custom/`, así que la instancia necesita esa carpeta en sus addons, además de `src/custom/prueba-tecnica` para los módulos que ya traía el repositorio. El módulo original de Odoo 16 queda sin cambios en `src/custom/prueba-tecnica-odoo16/fleet_inspection`, como referencia: esa carpeta **no** debe estar en los addons de la instancia de Odoo 18, que rechaza su versión 16.0 y deja de poder crear bases.
 
 ```jsonc
 "prueba_tecnica": {
@@ -32,7 +36,7 @@ Los módulos de los ejercicios 1 y 2 están en `src/custom/`, así que la instan
 Para correr las pruebas sobre una base nueva:
 
 ```bash
-./odoo test prueba_tecnica shop_integration_api,fleet_inspection -d prueba_limpia
+./odoo test prueba_tecnica shop_integration_api,fleet_inspection,sale_commission,payment_request -d prueba_limpia
 ```
 
 Mientras exista la copia original de `fleet_inspection`, el script de pruebas mide la cobertura sobre ella y la informa en 0%; los resultados de las pruebas son válidos. El detalle está en las limitaciones del [README del ejercicio 2](src/custom/fleet_inspection/README.md).
