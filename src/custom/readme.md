@@ -60,6 +60,7 @@ Son 8 pruebas: las 4 originales y las 4 del ticket.
          "port": 5432,
          "expose_host_port": false,
          "user": "odoo",
+         "password": "<contraseña de PostgreSQL>",
          "config": "postgresql.small.conf",
          "create_container": true
        }
@@ -83,7 +84,7 @@ Son 8 pruebas: las 4 originales y las 4 del ticket.
    }
    ```
 
-   Los addons son solo `src/custom/prueba-tecnica`: `src/custom/prueba-tecnica-odoo16` guarda el módulo original de Odoo 16 como referencia y no debe estar en los addons, porque Odoo 18 rechaza su versión.
+   En `password` cada quien elige la contraseña de PostgreSQL de su entorno; el script la usa al crear el contenedor de la base. Los addons son solo `src/custom/prueba-tecnica`: `src/custom/prueba-tecnica-odoo16` guarda el módulo original de Odoo 16 como referencia y no debe estar en los addons, porque Odoo 18 rechaza su versión.
 
 2. **Validar, construir y levantar:**
 
