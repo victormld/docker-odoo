@@ -50,6 +50,11 @@ class PaymentRequest(models.Model):
     approver_id = fields.Many2one("res.users", string="Approver", readonly=True, copy=False, tracking=True)
     approval_date = fields.Datetime(readonly=True, copy=False)
     rejection_reason = fields.Text(readonly=True, copy=False)
+    payment_id = fields.Many2one("account.payment", string="Payment", readonly=True, copy=False, tracking=True)
+    # Related fields are read as superuser: the requester sees the payment data without accounting rights
+    payment_reference = fields.Char(related="payment_id.name", string="Payment Reference")
+    payment_date = fields.Date(related="payment_id.date", string="Payment Date")
+    payment_journal = fields.Char(related="payment_id.journal_id.name", string="Paid From")
 
     @api.constrains("amount")
     def _check_amount(self):
@@ -165,8 +170,47 @@ class PaymentRequest(models.Model):
                                  subtype_xmlid="mail.mt_comment")
         self._close_approval_activity()
 
-    def action_mark_paid(self):
+    def _check_payment_rights(self):
         self._check_group("payment_request.group_payment_request_treasury",
                           _("Only treasury can pay payment requests."))
+        # Checking the status also prevents paying the same request twice
         self._check_state("approved")
-        self.write({"state": "paid"})
+
+    def action_open_payment_wizard(self):
+        self._check_payment_rights()
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Pay Payment Request"),
+            "res_model": "payment.request.payment.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_request_id": self.id},
+        }
+
+    def _pay(self, journal, payment_date):
+        """Register the supplier payment in accounting and link it to the request."""
+        self.ensure_one()
+        self._check_payment_rights()
+        payment = self.env["account.payment"].create({
+            "payment_type": "outbound",
+            "partner_type": "supplier",
+            "partner_id": self.partner_id.id,
+            "amount": self.amount,
+            "currency_id": self.currency_id.id,
+            "journal_id": journal.id,
+            "date": payment_date,
+            "memo": self.name,
+        })
+        payment.action_post()
+        self.write({"state": "paid", "payment_id": payment.id})
+        return payment
+
+    def action_view_payment(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "account.payment",
+            "res_id": self.payment_id.id,
+            "view_mode": "form",
+        }

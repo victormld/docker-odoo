@@ -1,11 +1,12 @@
 from odoo import fields
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tests import TransactionCase, tagged
+from odoo.tests import tagged
 from odoo.tests.common import new_test_user
 
 
 @tagged("post_install", "-at_install")
-class TestPaymentRequest(TransactionCase):
+class TestPaymentRequest(AccountTestInvoicingCommon):
     """Every test acts as a real user of each group: none runs as superuser."""
 
     @classmethod
@@ -41,6 +42,12 @@ class TestPaymentRequest(TransactionCase):
             **vals,
         })
 
+    def _pay(self, request, user=None):
+        self.env["payment.request.payment.wizard"].with_user(user or self.treasury).create({
+            "request_id": request.id,
+            "journal_id": self.company_data["default_journal_bank"].id,
+        }).action_pay()
+
     def _form_arch(self, user):
         return self.env["payment.request"].with_user(user).get_views([(False, "form")])["views"]["form"]["arch"]
 
@@ -52,7 +59,7 @@ class TestPaymentRequest(TransactionCase):
         self.assertEqual(request.state, "submitted")
         request.with_user(self.approver).action_approve()
         self.assertEqual(request.state, "approved")
-        request.with_user(self.treasury).action_mark_paid()
+        self._pay(request)
         self.assertEqual(request.state, "paid")
 
     def test_requester_sees_only_own_requests(self):
@@ -86,10 +93,10 @@ class TestPaymentRequest(TransactionCase):
     def test_buttons_only_for_their_group(self):
         # Odoo removes from the view the nodes restricted to groups the user does not have
         self.assertNotIn('name="action_approve"', self._form_arch(self.requester))
-        self.assertNotIn('name="action_mark_paid"', self._form_arch(self.requester))
+        self.assertNotIn('name="action_open_payment_wizard"', self._form_arch(self.requester))
         self.assertIn('name="action_approve"', self._form_arch(self.approver))
-        self.assertNotIn('name="action_mark_paid"', self._form_arch(self.approver))
-        self.assertIn('name="action_mark_paid"', self._form_arch(self.treasury))
+        self.assertNotIn('name="action_open_payment_wizard"', self._form_arch(self.approver))
+        self.assertIn('name="action_open_payment_wizard"', self._form_arch(self.treasury))
         self.assertNotIn('name="action_approve"', self._form_arch(self.treasury))
 
     def test_submitted_request_cannot_be_modified(self):
@@ -113,7 +120,7 @@ class TestPaymentRequest(TransactionCase):
         with self.assertRaisesRegex(UserError, "current status"):
             request.with_user(self.approver).action_approve()
         with self.assertRaisesRegex(UserError, "current status"):
-            request.with_user(self.treasury).action_mark_paid()
+            request.with_user(self.treasury).action_open_payment_wizard()
         request.action_submit()
         with self.assertRaisesRegex(UserError, "current status"):
             request.action_submit()
@@ -124,7 +131,7 @@ class TestPaymentRequest(TransactionCase):
         request.with_user(self.approver).action_approve()
         for user in (self.requester, self.approver):
             with self.subTest(user=user.login), self.assertRaises(AccessError):
-                request.with_user(user).action_mark_paid()
+                request.with_user(user).action_open_payment_wizard()
         self.assertEqual(request.state, "approved")
 
     def test_only_drafts_can_be_deleted(self):

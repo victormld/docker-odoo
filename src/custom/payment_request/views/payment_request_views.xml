@@ -35,12 +35,17 @@
                     <button name="action_reject" string="Reject" type="object"
                             invisible="state != 'submitted'"
                             groups="payment_request.group_payment_request_approver"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="oe_highlight"
+                    <button name="action_open_payment_wizard" string="Pay" type="object" class="oe_highlight"
                             invisible="state != 'approved'"
                             groups="payment_request.group_payment_request_treasury"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payment" type="object" class="oe_stat_button" icon="fa-money"
+                                string="Payment" invisible="not payment_reference"
+                                groups="account.group_account_invoice"/>
+                    </div>
                     <div class="oe_title">
                         <h1><field name="name"/></h1>
                     </div>
@@ -63,6 +68,11 @@
                         <field name="concept" readonly="state != 'draft'"
                                placeholder="What is being paid and why"/>
                         <field name="rejection_reason" invisible="not rejection_reason"/>
+                    </group>
+                    <group string="Payment" invisible="not payment_reference">
+                        <field name="payment_reference"/>
+                        <field name="payment_date"/>
+                        <field name="payment_journal"/>
                     </group>
                 </sheet>
                 <chatter/>
