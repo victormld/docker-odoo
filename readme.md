@@ -12,8 +12,9 @@ Compatible con Linux y macOS (AMD y ARM).
 | Ejercicio | Módulo | Documentación |
 |---|---|---|
 | 1. Integración con API para una tienda en línea | `src/custom/shop_integration_api` | [README](src/custom/shop_integration_api/README.md) |
+| 2. Migración del módulo de inspecciones | `src/custom/fleet_inspection` | [README](src/custom/fleet_inspection/README.md) |
 
-El módulo del ejercicio 1 está en `src/custom/`, así que la instancia necesita esa carpeta en sus addons, además de `src/custom/prueba-tecnica` para los módulos que ya traía el repositorio:
+Los módulos de los ejercicios 1 y 2 están en `src/custom/`, así que la instancia necesita esa carpeta en sus addons, además de `src/custom/prueba-tecnica` para los módulos que ya traía el repositorio. El módulo original de Odoo 16 queda sin cambios en `src/custom/prueba-tecnica-odoo16/fleet_inspection`, como referencia: esa carpeta **no** debe estar en los addons de la instancia de Odoo 18, que rechaza su versión 16.0 y deja de poder crear bases.
 
 ```jsonc
 "prueba_tecnica": {
@@ -31,8 +32,10 @@ El módulo del ejercicio 1 está en `src/custom/`, así que la instancia necesit
 Para correr las pruebas sobre una base nueva:
 
 ```bash
-./odoo test prueba_tecnica shop_integration_api -d prueba_limpia
+./odoo test prueba_tecnica shop_integration_api,fleet_inspection -d prueba_limpia
 ```
+
+Mientras exista la copia original de `fleet_inspection`, el script de pruebas mide la cobertura sobre ella y la informa en 0%; los resultados de las pruebas son válidos. El detalle está en las limitaciones del [README del ejercicio 2](src/custom/fleet_inspection/README.md).
 
 ## Instalación Rápida
 
