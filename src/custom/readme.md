@@ -46,7 +46,6 @@ Son 8 pruebas: las 4 originales y las 4 del ticket.
      "odoo_configs": {
        "18.0_default": {
          "enabled": true,
-         "admin_password": "admin",
          "workers": 2,
          "without_demo": true,
          "list_db": true,
@@ -61,7 +60,6 @@ Son 8 pruebas: las 4 originales y las 4 del ticket.
          "port": 5432,
          "expose_host_port": false,
          "user": "odoo",
-         "password": "odoo",
          "config": "postgresql.small.conf",
          "create_container": true
        }
@@ -85,7 +83,7 @@ Son 8 pruebas: las 4 originales y las 4 del ticket.
    }
    ```
 
-   Las contraseñas son las de desarrollo de la plantilla. Los addons son solo `src/custom/prueba-tecnica`: `src/custom/prueba-tecnica-odoo16` guarda el módulo original de Odoo 16 como referencia y no debe estar en los addons, porque Odoo 18 rechaza su versión.
+   Los addons son solo `src/custom/prueba-tecnica`: `src/custom/prueba-tecnica-odoo16` guarda el módulo original de Odoo 16 como referencia y no debe estar en los addons, porque Odoo 18 rechaza su versión.
 
 2. **Validar, construir y levantar:**
 
