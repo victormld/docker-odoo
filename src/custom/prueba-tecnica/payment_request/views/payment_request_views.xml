@@ -15,9 +15,9 @@
                 <field name="approver_id" widget="many2one_avatar_user" optional="show"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="state" widget="badge" decoration-info="state == 'submitted'"
-                       decoration-warning="state == 'approved'" decoration-success="state == 'paid'"
-                       decoration-danger="state == 'rejected'"/>
-                <field name="payment_state" widget="badge" optional="show"
+                       decoration-warning="state == 'approved'" decoration-primary="state == 'in_process'"
+                       decoration-success="state == 'paid'" decoration-danger="state == 'rejected'"/>
+                <field name="payment_state" widget="badge" optional="hide"
                        decoration-info="payment_state == 'in_process'" decoration-success="payment_state == 'paid'"/>
             </list>
         </field>
@@ -40,7 +40,7 @@
                     <button name="action_open_payment_wizard" string="Pay" type="object" class="oe_highlight"
                             invisible="state != 'approved'"
                             groups="payment_request.group_payment_request_treasury"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,in_process,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -99,6 +99,7 @@
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="in_process" string="In Process" domain="[('state', '=', 'in_process')]"/>
                 <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
                 <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
                 <group expand="0" string="Group By">

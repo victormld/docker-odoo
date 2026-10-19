@@ -1,7 +1,7 @@
 {
     "name": "Payment Requests",
     "summary": "Supplier payment requests with approval by amount",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "category": "Accounting/Accounting",
     "author": "Víctor Maldonado",
     "license": "LGPL-3",

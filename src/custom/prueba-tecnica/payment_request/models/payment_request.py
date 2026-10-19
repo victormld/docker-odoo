@@ -36,6 +36,7 @@ class PaymentRequest(models.Model):
             ("draft", "Draft"),
             ("submitted", "Submitted"),
             ("approved", "Approved"),
+            ("in_process", "In Process"),
             ("paid", "Paid"),
             ("rejected", "Rejected"),
         ],
@@ -45,6 +46,10 @@ class PaymentRequest(models.Model):
         copy=False,
         index=True,
         tracking=True,
+        # Set by hand up to approved or rejected; once paid, it follows the accounting payment
+        compute="_compute_state",
+        store=True,
+        readonly=False,
     )
     approval_level_id = fields.Many2one("payment.approval.level", readonly=True, copy=False)
     approver_id = fields.Many2one("res.users", string="Approver", readonly=True, copy=False, tracking=True)
@@ -55,9 +60,18 @@ class PaymentRequest(models.Model):
     payment_reference = fields.Char(related="payment_id.name", string="Payment Reference")
     payment_date = fields.Date(related="payment_id.date", string="Payment Date")
     payment_journal = fields.Char(related="payment_id.journal_id.name", string="Paid From")
-    # The request is paid once treasury registers the payment; accounting moves the payment
-    # from in process to paid when it reconciles it, and the requester follows it here
     payment_state = fields.Selection(related="payment_id.state", string="Payment Status")
+
+    @api.depends("payment_id.state")
+    def _compute_state(self):
+        """Treasury registers the payment: in process. Accounting confirms it: paid.
+
+        The payment reaches paid when accounting reconciles it (with the supplier bill in
+        Community), and that is a recomputation, not a write: the dependency catches it.
+        Without a payment, the status stays as the flow left it.
+        """
+        for request in self.filtered("payment_id"):
+            request.state = "paid" if request.payment_id.state == "paid" else "in_process"
 
     @api.constrains("amount")
     def _check_amount(self):
@@ -209,7 +223,8 @@ class PaymentRequest(models.Model):
             "payment_request_id": self.id,
         })
         payment.action_post()
-        self.write({"state": "paid", "payment_id": payment.id})
+        # The status follows the payment: in process, or paid if the journal posts straight to the bank
+        self.payment_id = payment
         return payment
 
     def _release_payment(self, reason):
