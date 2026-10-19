@@ -1,0 +1,642 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* fleet_inspection
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20261017\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-19 02:16+0000\n"
+"PO-Revision-Date: 2026-10-19 02:16+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: fleet_inspection
+#: model:ir.actions.report,print_report_name:fleet_inspection.action_report_fleet_inspection
+msgid "'Inspection - %s' % object.name"
+msgstr "'Inspección - %s' % object.name"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid ""
+"<br/>\n"
+"                            <strong>Date:</strong>"
+msgstr ""
+"<br/>\n"
+"                            <strong>Fecha:</strong>"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid ""
+"<br/>\n"
+"                            <strong>Inspector:</strong>"
+msgstr ""
+"<br/>\n"
+"                            <strong>Inspector:</strong>"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid ""
+"<br/>\n"
+"                            <strong>Status:</strong>"
+msgstr ""
+"<br/>\n"
+"                            <strong>Estado:</strong>"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid ""
+"<br/>\n"
+"                            <strong>Type:</strong>"
+msgstr ""
+"<br/>\n"
+"                            <strong>Tipo:</strong>"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid "<strong>Notes:</strong>"
+msgstr "<strong>Observaciones:</strong>"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid "<strong>Vehicle:</strong>"
+msgstr "<strong>Vehículo:</strong>"
+
+#. module: fleet_inspection
+#: model:ir.model.constraint,message:fleet_inspection.constraint_fleet_inspection_vehicle_type_code_uniq
+msgid "A vehicle type with this code already exists."
+msgstr "Ya existe un tipo de vehículo con ese código."
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_needaction
+msgid "Action Needed"
+msgstr "Se requiere una acción"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__active
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_ids
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decoración de la actividad de excepción"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_state
+msgid "Activity State"
+msgstr "Estado de la actividad"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icono del tipo de actividad"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "Approve"
+msgstr "Aprobar"
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection__state__approved
+msgid "Approved"
+msgstr "Aprobada"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_attachment_count
+msgid "Attachment Count"
+msgstr "Número de archivos adjuntos"
+
+#. module: fleet_inspection
+#: model:fleet.inspection.item,name:fleet_inspection.item_brakes
+msgid "Brakes"
+msgstr "Frenos"
+
+#. module: fleet_inspection
+#. odoo-python
+#: code:addons/fleet_inspection/models/fleet_inspection.py:0
+msgid "Cannot approve: critical points failed (%s)."
+msgstr "No se puede aprobar: fallaron puntos críticos (%s)."
+
+#. module: fleet_inspection
+#: model:fleet.inspection.vehicle.type,name:fleet_inspection.vehicle_type_car
+msgid "Car"
+msgstr "Carro"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__line_ids
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "Checklist"
+msgstr "Checklist"
+
+#. module: fleet_inspection
+#: model:ir.actions.act_window,name:fleet_inspection.fleet_inspection_item_action
+#: model:ir.ui.menu,name:fleet_inspection.menu_fleet_inspection_item
+msgid "Checklist Points"
+msgstr "Puntos del checklist"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__code
+msgid "Code"
+msgstr "Código"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__comment
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid "Comment"
+msgstr "Comentario"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__create_uid
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__create_uid
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__create_uid
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__create_date
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__create_date
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__create_date
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__critical
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__critical
+msgid "Critical"
+msgstr "Crítico"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__date
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "Date"
+msgstr "Fecha"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__display_name
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__display_name
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__display_name
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection__state__draft
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection_line__result__fail
+msgid "Failed"
+msgstr "Falla"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__failed_count
+msgid "Failed Points"
+msgstr "Puntos fallidos"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (contactos)"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icono de Font Awesome, por ejemplo, fa-tasks"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__has_message
+msgid "Has Message"
+msgstr "Tiene un mensaje"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__id
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__id
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__id
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_exception_icon
+msgid "Icon"
+msgstr "Icono"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icono que indica una actividad de excepción."
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection_item__critical
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection_line__critical
+msgid "If a critical point fails, the inspection cannot be approved."
+msgstr "Si un punto crítico falla, la inspección no se puede aprobar."
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está seleccionado, hay nuevos mensajes que requieren tu atención."
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está seleccionado, algunos mensajes tienen error de envío."
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection__state__in_progress
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "In Progress"
+msgstr "En curso"
+
+#. module: fleet_inspection
+#: model:ir.actions.report,name:fleet_inspection.action_report_fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__inspection_id
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid "Inspection"
+msgstr "Inspección"
+
+#. module: fleet_inspection
+#. odoo-python
+#: code:addons/fleet_inspection/models/fleet_inspection.py:0
+msgid "Inspection %s has no checklist points."
+msgstr "La inspección %s no tiene puntos en el checklist."
+
+#. module: fleet_inspection
+#. odoo-python
+#: code:addons/fleet_inspection/models/fleet_inspection.py:0
+msgid "Inspection %s still has unchecked points."
+msgstr "Faltan puntos por revisar en la inspección %s."
+
+#. module: fleet_inspection
+#: model:ir.model,name:fleet_inspection.model_fleet_inspection_line
+msgid "Inspection Checklist Line"
+msgstr "Línea del checklist de inspección"
+
+#. module: fleet_inspection
+#: model:ir.model,name:fleet_inspection.model_fleet_inspection_item
+msgid "Inspection Checklist Point"
+msgstr "Punto del checklist de inspección"
+
+#. module: fleet_inspection
+#: model:res.groups,name:fleet_inspection.group_fleet_inspection_manager
+msgid "Inspection Supervisor"
+msgstr "Supervisor de inspecciones"
+
+#. module: fleet_inspection
+#: model:ir.model,name:fleet_inspection.model_fleet_inspection_vehicle_type
+msgid "Inspection Vehicle Type"
+msgstr "Tipo de vehículo para inspecciones"
+
+#. module: fleet_inspection
+#. odoo-python
+#: code:addons/fleet_inspection/models/fleet_inspection.py:0
+msgid "Inspection in progress for more than %s days"
+msgstr "Inspección en curso desde hace más de %s días"
+
+#. module: fleet_inspection
+#: model:ir.actions.act_window,name:fleet_inspection.fleet_inspection_action
+#: model:ir.ui.menu,name:fleet_inspection.menu_fleet_inspection
+#: model:ir.ui.menu,name:fleet_inspection.menu_fleet_inspection_root
+msgid "Inspections"
+msgstr "Inspecciones"
+
+#. module: fleet_inspection
+#: model:ir.actions.server,name:fleet_inspection.ir_cron_fleet_inspection_overdue_ir_actions_server
+msgid "Inspections: flag those in progress for more than 7 days"
+msgstr "Inspecciones: marcar las que llevan más de 7 días en curso"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__inspector_id
+#: model:res.groups,name:fleet_inspection.group_fleet_inspection_user
+msgid "Inspector"
+msgstr "Inspector"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_is_follower
+msgid "Is Follower"
+msgstr "Es un seguidor"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__write_uid
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__write_uid
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__write_uid
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__write_date
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__write_date
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__write_date
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: fleet_inspection
+#: model:fleet.inspection.item,name:fleet_inspection.item_lights
+msgid "Lights"
+msgstr "Luces"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_has_error
+msgid "Message Delivery error"
+msgstr "Error al enviar el mensaje"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: fleet_inspection
+#: model:fleet.inspection.vehicle.type,name:fleet_inspection.vehicle_type_motorcycle
+msgid "Motorcycle"
+msgstr "Moto"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Fecha límite de mi actividad"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "My Inspections"
+msgstr "Mis inspecciones"
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection_line__result__na
+msgid "N/A"
+msgstr "No aplica"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Siguiente fecha límite de la actividad"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resumen de la siguiente actividad"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_type_id
+msgid "Next Activity Type"
+msgstr "Siguiente tipo de actividad"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__notes
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "Notes"
+msgstr "Observaciones"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__name
+msgid "Number"
+msgstr "Número"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de acciones"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número de errores"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensajes que requieren una acción"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de envío"
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection_line__result__ok
+msgid "OK"
+msgstr "Bien"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__odometer
+msgid "Odometer"
+msgstr "Kilometraje"
+
+#. module: fleet_inspection
+#: model:fleet.inspection.item,name:fleet_inspection.item_oil
+msgid "Oil Level"
+msgstr "Nivel de aceite"
+
+#. module: fleet_inspection
+#. odoo-python
+#: code:addons/fleet_inspection/models/fleet_inspection.py:0
+msgid "Only draft inspections can be deleted."
+msgstr "Solo se pueden eliminar inspecciones en borrador."
+
+#. module: fleet_inspection
+#: model:fleet.inspection.vehicle.type,name:fleet_inspection.vehicle_type_other
+msgid "Other"
+msgstr "Otro"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__is_overdue
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "Overdue"
+msgstr "Vencidas"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__pending_count
+msgid "Pending Points"
+msgstr "Puntos pendientes"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__item_id
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid "Point"
+msgstr "Punto"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__name
+msgid "Point to Check"
+msgstr "Punto a revisar"
+
+#. module: fleet_inspection
+#: model_terms:ir.actions.act_window,help:fleet_inspection.fleet_inspection_action
+msgid "Record your first inspection"
+msgstr "Registra la primera inspección"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "Reject"
+msgstr "Rechazar"
+
+#. module: fleet_inspection
+#: model:ir.model.fields.selection,name:fleet_inspection.selection__fleet_inspection__state__rejected
+msgid "Rejected"
+msgstr "Rechazada"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "Reset to Draft"
+msgstr "Volver a borrador"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario responsable"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__result
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.report_fleet_inspection
+msgid "Result"
+msgstr "Resultado"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_item__sequence
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__sequence
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_vehicle_type__sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection_vehicle_type__code
+msgid ""
+"Stable technical key. Used by the migration from the former selection field."
+msgstr ""
+"Clave técnica estable. La usa la migración desde el antiguo campo de "
+"selección."
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "Start"
+msgstr "Iniciar"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__state
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection_line__state
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "Status"
+msgstr "Estado"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Estado según las actividades\n"
+"Vencida: ya pasó la fecha límite\n"
+"Hoy: hoy es la fecha de la actividad\n"
+"Planeada: futuras actividades."
+
+#. module: fleet_inspection
+#: model_terms:ir.actions.act_window,help:fleet_inspection.fleet_inspection_action
+msgid "The checklist is loaded automatically with the configured points."
+msgstr "El checklist se carga solo con los puntos configurados."
+
+#. module: fleet_inspection
+#: model:ir.model.constraint,message:fleet_inspection.constraint_fleet_inspection_name_uniq
+msgid "The inspection number must be unique."
+msgstr "El número de la inspección debe ser único."
+
+#. module: fleet_inspection
+#. odoo-python
+#: code:addons/fleet_inspection/models/fleet_inspection.py:0
+msgid "The odometer cannot be negative."
+msgstr "El kilometraje no puede ser negativo."
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_form
+msgid "This inspection has been in progress for more than 7 days."
+msgstr "Esta inspección lleva más de 7 días en curso."
+
+#. module: fleet_inspection
+#: model:fleet.inspection.item,name:fleet_inspection.item_tires
+msgid "Tires"
+msgstr "Cauchos"
+
+#. module: fleet_inspection
+#: model:fleet.inspection.vehicle.type,name:fleet_inspection.vehicle_type_truck
+msgid "Truck"
+msgstr "Camión"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,help:fleet_inspection.field_fleet_inspection__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipo de la actividad de excepción registrada."
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__vehicle_id
+msgid "Vehicle"
+msgstr "Vehículo"
+
+#. module: fleet_inspection
+#: model:fleet.inspection.item,name:fleet_inspection.item_documents
+msgid "Vehicle Documents"
+msgstr "Documentos del vehículo"
+
+#. module: fleet_inspection
+#: model:ir.model,name:fleet_inspection.model_fleet_inspection
+msgid "Vehicle Inspection"
+msgstr "Inspección de vehículo"
+
+#. module: fleet_inspection
+#: model:ir.model.fields,field_description:fleet_inspection.field_fleet_inspection__vehicle_type_id
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "Vehicle Type"
+msgstr "Tipo de vehículo"
+
+#. module: fleet_inspection
+#: model:ir.actions.act_window,name:fleet_inspection.fleet_inspection_vehicle_type_action
+#: model:ir.ui.menu,name:fleet_inspection.menu_fleet_inspection_vehicle_type
+msgid "Vehicle Types"
+msgstr "Tipos de vehículo"
+
+#. module: fleet_inspection
+#: model_terms:ir.ui.view,arch_db:fleet_inspection.fleet_inspection_view_search
+msgid "With Failures"
+msgstr "Con fallas"
+
+#. module: fleet_inspection
+#: model:ir.module.module,shortdesc:base.module_fleet_inspection
+msgid "Vehicle Inspections"
+msgstr "Inspecciones de vehículos"
+
+#. module: fleet_inspection
+#: model:ir.module.module,summary:base.module_fleet_inspection
+msgid "Inspection checklist for fleet vehicles"
+msgstr "Checklist de inspección para los vehículos de la flota"
