@@ -167,17 +167,6 @@ Cada petición a la API, exitosa o fallida, crea un registro en `shop.api.call.l
 - Se consulta en *Ventas › Configuración › Tienda en línea › Llamadas a la API*. Tiene filtros por resultado (exitosas, 4xx, 5xx), llamadas sin autenticar y fecha, y agrupación por endpoint, código, usuario y día.
 - Solo los administradores pueden verlo. Nadie puede crear ni modificar registros desde Odoo; un administrador puede borrarlos.
 
-## Traducción al español
-
-Los textos del módulo están en inglés, el idioma fuente de Odoo, y la traducción está en `i18n/es.po`. Odoo la usa para cualquier variante de español (es_VE, es_ES, es_419…). La plantilla de la que sale es `i18n/shop_integration_api.pot`.
-
-- **46 textos.** Los 39 del módulo (mensajes de la API, registro de llamadas, vistas, menú y origen del pedido) usan como traducción los textos en español que tenía el módulo. Las 7 etiquetas estándar que hereda el modelo ("Creado por", "Agrupar por"…) usan la traducción oficial de Odoo: la de Latinoamérica (es_419) cuando existe, y si no, la general.
-- **Mensajes de la API:** se escriben con `request.env._()`, que traduce al idioma del entorno de la petición. Después de autenticar, ese idioma es el del usuario de integración.
-- **Nombre y resumen del módulo:** Odoo no los incluye al exportar la plantilla, así que se agregaron a mano (`model:ir.module.module,shortdesc:base.module_shop_integration_api` y `summary`). Si se vuelve a exportar la plantilla, hay que conservarlas.
-- **Verificación:** se comprobó con el lector de Odoo que todos los textos tienen traducción y que cada traducción conserva los mismos marcadores (`%s`) que el original.
-
-**Para verlo en español:** *Ajustes › Idiomas › Activar*, elegir el español y ponerlo en las preferencias del usuario (también en el usuario de integración, para los mensajes de la API). Si el idioma se instala desde la consola con `--load-language`, Odoo lo carga antes que los módulos y el menú y las vistas del módulo quedan en inglés hasta actualizarlo con `-u shop_integration_api`.
-
 ## Cómo probarlo
 
 ### Pruebas automáticas

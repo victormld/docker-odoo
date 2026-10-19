@@ -121,17 +121,6 @@ El módulo solo agrega lo que falta: la solicitud con su flujo, los niveles de a
 
 Se imprime desde la solicitud (*Imprimir › Solicitud de pago*): número, proveedor, solicitante, fecha, monto, concepto y estado; quién aprobó y cuándo, o quién rechazó y por qué; y la referencia, el estado, la fecha y el diario del pago. Usa el encabezado de la compañía. El solicitante también lo puede imprimir.
 
-## Traducción al español
-
-Los textos del módulo están en inglés, el idioma fuente de Odoo, y la traducción está en `i18n/es.po`. Odoo la usa para cualquier variante de español (es_VE, es_ES, es_419…). La plantilla de la que sale es `i18n/payment_request.pot`.
-
-- **121 textos.** Los 78 del módulo se tradujeron a mano. Las 43 etiquetas estándar que el modelo hereda de Odoo ("Seguidores", "Creado por", "Actividades"…) usan la traducción oficial de Odoo: la de Latinoamérica (es_419) cuando existe, y si no, la general.
-- **"Monto" y no "Importe"**, que es como lo traduce Odoo: en Venezuela se dice "monto". Los estados están en femenino porque se refieren a la solicitud: *Enviada*, *Aprobada*, *Pagada*, *Rechazada*.
-- **Nombre y resumen del módulo:** Odoo no los incluye al exportar la plantilla, así que se agregaron a mano (`model:ir.module.module,shortdesc:base.module_payment_request` y `summary`). El nombre es el mismo texto que el menú, así que es una ocurrencia más de esa entrada. Si se vuelve a exportar la plantilla, hay que conservarlas.
-- **Verificación:** se comprobó con el lector de Odoo que todos los textos tienen traducción, que cada traducción conserva los mismos marcadores (`%s`, `%(approver)s`…) y etiquetas HTML que el original, y que el nombre del PDF sigue siendo Python válido. Las pruebas de `tests/test_translation.py` cargan el español y verifican etiquetas, estados, nombre del módulo, mensajes con su variable, la actividad en el idioma del aprobador y la nota del pago rechazado con el estado traducido.
-
-**Para verlo en español:** *Ajustes › Idiomas › Activar*, elegir el español y cambiarlo en las preferencias del usuario. Si el idioma se instala desde la consola con `--load-language`, Odoo lo carga antes que los módulos y los menús y grupos del módulo quedan en inglés hasta actualizarlo con `-u payment_request`.
-
 ## Puesta en marcha
 
 1. **Moneda de la compañía: VES.** Odoo todavía asocia Venezuela con el VEF (bolívar fuerte), reemplazado por el VES en 2018, y al instalar el plan contable venezolano la compañía queda en VEF. Hay que cambiarla a VES en *Ajustes › Contabilidad* **antes del primer asiento**, porque después Odoo no lo permite, y archivar el VEF para que no aparezca al elegir moneda.
@@ -139,7 +128,7 @@ Los textos del módulo están en inglés, el idioma fuente de Odoo, y la traducc
 3. **Correo de cada usuario:** Odoo lo exige para registrar mensajes y avisar de actividades. Un usuario sin correo no puede enviar ni rechazar solicitudes ("configure the sender's email address").
 4. **Grupos:** todo usuario interno ya es *Solicitante*. En el usuario, sección *Solicitudes de pago*, se marca *Aprobador* o *Tesorería*. Al instalar, el administrador queda en los dos.
 5. **Niveles de aprobación:** *Solicitudes de pago › Configuración › Niveles de aprobación* (solo el administrador). Por ejemplo: "Área" desde 0 VES con el jefe de área, y "Gerencia" desde 50.000 VES con el gerente.
-6. **Opcional, decisión de contabilidad:** para que los pagos queden *Pagado* en el momento de registrarlos, se pone la cuenta del banco como cuenta de pagos pendientes en el método de pago saliente del diario (*Contabilidad › Configuración › Diarios › Banco › Pagos salientes*). Se pierde el paso de confirmar el pago contra el extracto del banco.
+
 
 ## Cómo probarlo
 
@@ -214,7 +203,7 @@ Preguntas para Carolina y el supuesto con el que se avanzó mientras no hay resp
 
 **Otras limitaciones:**
 
-- **En Odoo Community el pago queda *En proceso*** hasta que contabilidad lo concilia con la factura del proveedor, porque la conciliación bancaria es de Enterprise. La alternativa es la configuración opcional del punto 6 de *Puesta en marcha*.
+- **En Odoo Community el pago queda *En proceso*** hasta que contabilidad lo concilia con la factura del proveedor, porque la conciliación bancaria es de Enterprise.
 - **Un pago rechazado sigue apareciendo en las facturas del proveedor.** En Odoo, *Rechazar* solo cambia el estado del pago y deja su asiento publicado, así que el pago sigue en *Débitos pendientes* y se podría conciliar con una factura por error, aunque la solicitud ya volvió a *Aprobada*. Después de rechazar un pago, contabilidad debe cancelarlo: así se cancela su asiento y deja de aparecer.
 - **Odoo no deja eliminar un pago que ya tomó número** si no es el último de la secuencia; contabilidad tiene que cancelarlo o rechazarlo. En los dos casos la solicitud vuelve a *Aprobada*.
 - **Un pago cancelado que contabilidad vuelve a publicar no vuelve a la solicitud**, que ya está *Aprobada* o pagada con otro pago. Evitar un pago duplicado en ese caso queda en manos de contabilidad.

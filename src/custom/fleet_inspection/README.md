@@ -23,7 +23,7 @@ Migración a **Odoo 18** del módulo de inspecciones de vehículos escrito para 
 
 | Qué cambió | Por qué | Cómo lo resolví |
 |---|---|---|
-| Ubicación y versión (`16.0.1.0.0` → `18.0.1.0.0`) | Odoo 18 rechaza una versión 16.0 ("invalid manifest") y, con el módulo en sus rutas de addons, deja de poder crear bases. | Copia en `src/custom/fleet_inspection` con la versión nueva; el original queda como referencia. |
+| Ubicación y versión (`16.0.1.0.0` → `18.0.2.0.0`) | Odoo 18 rechaza una versión 16.0 ("invalid manifest") y, con el módulo en sus rutas de addons, deja de poder crear bases. | Copia en `src/custom/fleet_inspection` con la versión nueva; el original queda como referencia. |
 | `<tree>` → `<list>` | Odoo 18 ya no tiene el tipo de vista `tree`: el módulo no instalaba. | Raíz de las vistas de lista y `view_mode` de las acciones. |
 | `attrs` y `states` en las vistas | Desde 17.0 son un `ValidationError` al instalar. | Expresiones de Python en `invisible`, `readonly` y `required` (botones por estado, alerta de vencida, campos bloqueados y resultado obligatorio en curso). |
 | `invisible="1"` en columnas de listas | En Odoo 18, en una lista `invisible` solo vacía cada celda y la columna se sigue viendo; para ocultarla hay que usar `column_invisible`. | `column_invisible="True"` en "Vencida" (lista de inspecciones), "Activo" (puntos del checklist) y "Secuencia" y "Estado" (checklist del formulario). |
@@ -130,4 +130,4 @@ Las dos primeras vienen del módulo original y se mantienen a propósito:
 
 - **Aprobar, rechazar y volver a borrador no verifican el grupo en el servidor.** Los botones están ocultos para el inspector, pero un inspector puede llamar a esos métodos directamente (por ejemplo, por RPC) sobre sus propias inspecciones.
 - **Inspectores y supervisores solo pueden abrir inspecciones de vehículos donde son el conductor.** El grupo *Inspector* hereda el grupo base de Flota, y la regla `fleet_rule_vehicle_visibility_user` del módulo `fleet` solo le deja leer esos vehículos; para el resto, el formulario de la inspección falla con un error de acceso a *Vehículo*. La regla y la herencia de grupos son idénticas en Odoo 16, así que allí pasa lo mismo. Para dar acceso: asignar al usuario como conductor del vehículo, o darle además el grupo *Administrador* de Flota.
-- **La cobertura del script de pruebas mide la copia equivocada mientras exista el original.** `scripts/odoo-test` busca los módulos de forma recursiva y, con dos carpetas `fleet_inspection`, se queda con la última que encuentra (`prueba-tecnica-odoo16`). Odoo carga la correcta, así que el resultado de las pruebas es válido; solo el porcentaje de cobertura sale en 0%.
+
