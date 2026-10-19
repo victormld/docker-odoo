@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from odoo import _, api, fields, models
+from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 VEHICLE_TYPES = [
@@ -23,8 +23,6 @@ class FleetInspection(models.Model):
         string="Vehicle",
         required=True,
         tracking=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     vehicle_type = fields.Selection(
         VEHICLE_TYPES,
@@ -32,8 +30,6 @@ class FleetInspection(models.Model):
         required=True,
         default="car",
         tracking=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     inspector_id = fields.Many2one(
         "res.users",
@@ -82,23 +78,23 @@ class FleetInspection(models.Model):
             if inspection.odometer < 0:
                 raise ValidationError(_("The odometer cannot be negative."))
 
-    @api.model
-    def create(self, vals):
-        if vals.get("name", "/") == "/":
-            vals["name"] = self.env["ir.sequence"].next_by_code("fleet.inspection") or "/"
-        if not vals.get("line_ids"):
-            items = self.env["fleet.inspection.item"].search([])
-            vals["line_ids"] = [(0, 0, {"item_id": item.id}) for item in items]
-        return super(FleetInspection, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        items = self.env["fleet.inspection.item"].search([])
+        for vals in vals_list:
+            if vals.get("name", "/") == "/":
+                vals["name"] = self.env["ir.sequence"].next_by_code("fleet.inspection") or "/"
+            if not vals.get("line_ids"):
+                vals["line_ids"] = [Command.create({"item_id": item.id}) for item in items]
+        return super().create(vals_list)
 
-    def name_get(self):
-        result = []
+    @api.depends("name", "vehicle_id.license_plate", "vehicle_id.name")
+    def _compute_display_name(self):
         for inspection in self:
-            label = inspection.name
-            if inspection.vehicle_id:
-                label = "%s - %s" % (inspection.name, inspection.vehicle_id.license_plate or inspection.vehicle_id.name)
-            result.append((inspection.id, label))
-        return result
+            vehicle = inspection.vehicle_id
+            inspection.display_name = (
+                f"{inspection.name} - {vehicle.license_plate or vehicle.name}" if vehicle else inspection.name
+            )
 
     def action_start(self):
         for inspection in self:
