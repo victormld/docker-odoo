@@ -1,0 +1,278 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* shop_integration_api
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20261017\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-19 18:31+0000\n"
+"PO-Revision-Date: 2026-10-19 18:31+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: shop_integration_api
+#: model:ir.actions.act_window,name:shop_integration_api.shop_api_call_log_action
+#: model:ir.ui.menu,name:shop_integration_api.shop_api_call_log_menu
+msgid "API Calls"
+msgstr "Llamadas a la API"
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Client Errors (4xx)"
+msgstr "Errores del cliente (4xx)"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_form
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_list
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Date"
+msgstr "Fecha"
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Day"
+msgstr "Día"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__duration_ms
+msgid "Duration (ms)"
+msgstr "Duración (ms)"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Each line must be a JSON object."
+msgstr "Cada línea debe ser un objeto JSON."
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__endpoint
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Endpoint"
+msgstr "Endpoint"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__error_code
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Error Code"
+msgstr "Código de error"
+
+#. module: shop_integration_api
+#: model_terms:ir.actions.act_window,help:shop_integration_api.shop_api_call_log_action
+msgid ""
+"Every request from the shop to /api/v1, successful or not, shows up here."
+msgstr ""
+"Cada petición de la tienda a /api/v1, exitosa o fallida, aparece aquí."
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__method
+msgid "HTTP Method"
+msgstr "Método HTTP"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__id
+msgid "ID"
+msgstr "ID"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Internal server error."
+msgstr "Error interno del servidor."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Invalid date format. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (UTC)."
+msgstr ""
+"Formato de fecha inválido. Use AAAA-MM-DD o AAAA-MM-DDTHH:MM:SS (UTC)."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Invalid, expired or revoked API key."
+msgstr "API key inválida, vencida o revocada."
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Missing API key. Send the \"Authorization: Bearer <key>\" header."
+msgstr "Falta la API key. Envíe la cabecera \"Authorization: Bearer <clave>\"."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "More than one customer has the RIF %s"
+msgstr "Hay más de un cliente con el RIF %s"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "More than one product has the code %s"
+msgstr "Hay más de un producto con el código %s"
+
+#. module: shop_integration_api
+#: model_terms:ir.actions.act_window,help:shop_integration_api.shop_api_call_log_action
+msgid "No API calls logged yet"
+msgstr "Todavía no hay llamadas registradas"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "No customer has the RIF %s"
+msgstr "No existe un cliente con el RIF %s"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "No product has the code %s"
+msgstr "No existe un producto con el código %s"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+#: model:ir.ui.menu,name:shop_integration_api.shop_api_menu_root
+msgid "Online Store"
+msgstr "Tienda en línea"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Product %s is not available for sale"
+msgstr "El producto %s no está disponible para la venta"
+
+#. module: shop_integration_api
+#: model:ir.module.module,summary:base.module_shop_integration_api
+msgid "REST API for external shops: product catalog and sales orders"
+msgstr ""
+"API REST para tiendas externas: catálogo de productos y pedidos de venta"
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_form
+msgid "Request"
+msgstr "Petición"
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_form
+msgid "Response"
+msgstr "Respuesta"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__status_code
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Response Code"
+msgstr "Código de respuesta"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Send at least one order line."
+msgstr "Debe enviar al menos una línea de pedido."
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Server Errors (5xx)"
+msgstr "Errores del servidor (5xx)"
+
+#. module: shop_integration_api
+#: model:ir.model,name:shop_integration_api.model_shop_api_call_log
+msgid "Shop API Call Log"
+msgstr "Registro de llamadas a la API de la tienda"
+
+#. module: shop_integration_api
+#: model:ir.module.module,shortdesc:base.module_shop_integration_api
+msgid "Shop Integration API"
+msgstr "API de integración con la tienda"
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Successful"
+msgstr "Exitosas"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The %s field is required."
+msgstr "El campo %s es obligatorio."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The API user is not allowed to perform this operation."
+msgstr "El usuario de la API no tiene permisos para esta operación."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The product code is required."
+msgstr "El código del producto es obligatorio."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The quantity must be a number greater than zero."
+msgstr "La cantidad debe ser un número mayor que cero."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The request body must be a valid JSON object."
+msgstr "El cuerpo de la petición debe ser un objeto JSON válido."
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Unauthenticated"
+msgstr "Sin autenticar"
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__user_id
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "User"
+msgstr "Usuario"
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "category_id must be an integer."
+msgstr "category_id debe ser un número entero."
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "in_stock must be true or false."
+msgstr "in_stock debe ser true o false."

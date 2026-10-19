@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="shop_api_call_log_view_list" model="ir.ui.view">
+        <field name="name">shop.api.call.log.list</field>
+        <field name="model">shop.api.call.log</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0"
+                  decoration-warning="status_code &gt;= 400 and status_code &lt; 500"
+                  decoration-danger="status_code &gt;= 500">
+                <field name="create_date" string="Date"/>
+                <field name="method"/>
+                <field name="endpoint"/>
+                <field name="user_id"/>
+                <field name="status_code"/>
+                <field name="error_code"/>
+                <field name="duration_ms" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="shop_api_call_log_view_form" model="ir.ui.view">
+        <field name="name">shop.api.call.log.form</field>
+        <field name="model">shop.api.call.log</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Request">
+                            <field name="create_date" string="Date"/>
+                            <field name="method"/>
+                            <field name="endpoint"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group string="Response">
+                            <field name="status_code"/>
+                            <field name="error_code"/>
+                            <field name="duration_ms"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="shop_api_call_log_view_search" model="ir.ui.view">
+        <field name="name">shop.api.call.log.search</field>
+        <field name="model">shop.api.call.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="endpoint"/>
+                <field name="user_id"/>
+                <field name="error_code"/>
+                <filter name="success" string="Successful" domain="[('status_code', '&lt;', 400)]"/>
+                <filter name="client_error" string="Client Errors (4xx)"
+                        domain="[('status_code', '&gt;=', 400), ('status_code', '&lt;', 500)]"/>
+                <filter name="server_error" string="Server Errors (5xx)"
+                        domain="[('status_code', '&gt;=', 500)]"/>
+                <separator/>
+                <filter name="unauthenticated" string="Unauthenticated" domain="[('user_id', '=', False)]"/>
+                <separator/>
+                <filter name="create_date" string="Date" date="create_date"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_endpoint" string="Endpoint" context="{'group_by': 'endpoint'}"/>
+                    <filter name="group_status_code" string="Response Code" context="{'group_by': 'status_code'}"/>
+                    <filter name="group_error_code" string="Error Code" context="{'group_by': 'error_code'}"/>
+                    <filter name="group_user" string="User" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_day" string="Day" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="shop_api_call_log_action" model="ir.actions.act_window">
+        <field name="name">API Calls</field>
+        <field name="res_model">shop.api.call.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No API calls logged yet</p>
+            <p>Every request from the shop to /api/v1, successful or not, shows up here.</p>
+        </field>
+    </record>
+
+    <menuitem id="shop_api_menu_root" name="Online Store" parent="sale.menu_sale_config"
+              sequence="60" groups="base.group_system">
+        <menuitem id="shop_api_call_log_menu" name="API Calls"
+                  action="shop_api_call_log_action" sequence="10"/>
+    </menuitem>
+
+</odoo>

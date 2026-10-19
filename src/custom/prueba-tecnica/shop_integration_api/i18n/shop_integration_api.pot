@@ -1,0 +1,274 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* shop_integration_api
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20261017\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-19 18:31+0000\n"
+"PO-Revision-Date: 2026-10-19 18:31+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: shop_integration_api
+#: model:ir.actions.act_window,name:shop_integration_api.shop_api_call_log_action
+#: model:ir.ui.menu,name:shop_integration_api.shop_api_call_log_menu
+msgid "API Calls"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Client Errors (4xx)"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_form
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_list
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Date"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Day"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__duration_ms
+msgid "Duration (ms)"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Each line must be a JSON object."
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__endpoint
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Endpoint"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__error_code
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Error Code"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.actions.act_window,help:shop_integration_api.shop_api_call_log_action
+msgid ""
+"Every request from the shop to /api/v1, successful or not, shows up here."
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Group By"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__method
+msgid "HTTP Method"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__id
+msgid "ID"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Internal server error."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Invalid date format. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (UTC)."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Invalid, expired or revoked API key."
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Missing API key. Send the \"Authorization: Bearer <key>\" header."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "More than one customer has the RIF %s"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "More than one product has the code %s"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.actions.act_window,help:shop_integration_api.shop_api_call_log_action
+msgid "No API calls logged yet"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "No customer has the RIF %s"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "No product has the code %s"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+#: model:ir.ui.menu,name:shop_integration_api.shop_api_menu_root
+msgid "Online Store"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Product %s is not available for sale"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.module.module,summary:base.module_shop_integration_api
+msgid "REST API for external shops: product catalog and sales orders"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_form
+msgid "Request"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_form
+msgid "Response"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__status_code
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Response Code"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "Send at least one order line."
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Server Errors (5xx)"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model,name:shop_integration_api.model_shop_api_call_log
+msgid "Shop API Call Log"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.module.module,shortdesc:base.module_shop_integration_api
+msgid "Shop Integration API"
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Successful"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The %s field is required."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The API user is not allowed to perform this operation."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The product code is required."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The quantity must be a number greater than zero."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "The request body must be a valid JSON object."
+msgstr ""
+
+#. module: shop_integration_api
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "Unauthenticated"
+msgstr ""
+
+#. module: shop_integration_api
+#: model:ir.model.fields,field_description:shop_integration_api.field_shop_api_call_log__user_id
+#: model_terms:ir.ui.view,arch_db:shop_integration_api.shop_api_call_log_view_search
+msgid "User"
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "category_id must be an integer."
+msgstr ""
+
+#. module: shop_integration_api
+#. odoo-python
+#: code:addons/shop_integration_api/controllers/api_controller.py:0
+msgid "in_stock must be true or false."
+msgstr ""
