@@ -16,7 +16,7 @@ API REST para que la tienda en línea del cliente consulte el catálogo con su s
 ## Puesta en marcha
 
 1. **Instalar el módulo** en la base de datos del cliente.
-2. **Crear un usuario de integración** (usuario interno) con el permiso *Ventas: Usuario: Mostrar todos los documentos*. La API actúa con la identidad del dueño de la clave, así que se aplican sus permisos y reglas de registro. *Solo mostrar documentos propios* no alcanza: el pedido toma el vendedor asignado al cliente y, si es otra persona, Odoo no deja crearlo y la API responde 403.
+2. **Crear un usuario de integración** (usuario interno, con el idioma en español) con el permiso *Ventas: Usuario: Mostrar todos los documentos*. La API actúa con la identidad del dueño de la clave, así que se aplican sus permisos y reglas de registro. *Solo mostrar documentos propios* no alcanza: el pedido toma el vendedor asignado al cliente y, si es otra persona, Odoo no deja crearlo y la API responde 403.
 3. **Generar la API key**: entrando con ese usuario, en *Preferencias › Seguridad de la cuenta › Claves API › Nueva clave de API* (Odoo pide confirmar la contraseña). La clave se muestra una sola vez; se entrega a la tienda por un canal seguro y se revoca desde la misma pantalla. La clave de un usuario que no es administrador dura como máximo 3 meses: hay que generar otra antes de que venza o la tienda empezará a recibir 401.
 4. **Resolver una sola base por dominio.** La tienda no envía cookie de sesión, así que Odoo solo sabe qué base usar si el `dbfilter` deja exactamente una para el dominio de la petición (por ejemplo `^%d$` con un subdominio por base, o una sola base en el servidor). Si el filtro deja varias, toda ruta de la API responde 404.
 
@@ -133,7 +133,7 @@ Todos los errores tienen el mismo formato:
 }
 ```
 
-- `code` es estable y sirve para programar contra él; `message` está en español y puede cambiar.
+- `code` es estable y sirve para programar contra él; `message` es para personas y puede cambiar. Sale en el idioma del usuario de integración (en español si ese usuario tiene el idioma en español). En un 401 todavía no hay usuario: sale en el idioma que pida la cabecera `Accept-Language`, si está instalado en Odoo, y si no, en inglés.
 - `field` indica el dato que falló, o `null` si el error no es de un campo. Los índices de `lines` empiezan en 0: `lines[1]` es la segunda línea.
 - Se devuelve un solo error, el primero que se encuentra. Primero se valida toda la estructura del cuerpo, después el cliente y al final los productos.
 
@@ -167,6 +167,17 @@ Cada petición a la API, exitosa o fallida, crea un registro en `shop.api.call.l
 - Se consulta en *Ventas › Configuración › Tienda en línea › Llamadas a la API*. Tiene filtros por resultado (exitosas, 4xx, 5xx), llamadas sin autenticar y fecha, y agrupación por endpoint, código, usuario y día.
 - Solo los administradores pueden verlo. Nadie puede crear ni modificar registros desde Odoo; un administrador puede borrarlos.
 
+## Traducción al español
+
+Los textos del módulo están en inglés, el idioma fuente de Odoo, y la traducción está en `i18n/es.po`. Odoo la usa para cualquier variante de español (es_VE, es_ES, es_419…). La plantilla de la que sale es `i18n/shop_integration_api.pot`.
+
+- **46 textos.** Los 39 del módulo (mensajes de la API, registro de llamadas, vistas, menú y origen del pedido) usan como traducción los textos en español que tenía el módulo. Las 7 etiquetas estándar que hereda el modelo ("Creado por", "Agrupar por"…) usan la traducción oficial de Odoo: la de Latinoamérica (es_419) cuando existe, y si no, la general.
+- **Mensajes de la API:** se escriben con `request.env._()`, que traduce al idioma del entorno de la petición. Después de autenticar, ese idioma es el del usuario de integración.
+- **Nombre y resumen del módulo:** Odoo no los incluye al exportar la plantilla, así que se agregaron a mano (`model:ir.module.module,shortdesc:base.module_shop_integration_api` y `summary`). Si se vuelve a exportar la plantilla, hay que conservarlas.
+- **Verificación:** se comprobó con el lector de Odoo que todos los textos tienen traducción y que cada traducción conserva los mismos marcadores (`%s`) que el original.
+
+**Para verlo en español:** *Ajustes › Idiomas › Activar*, elegir el español y ponerlo en las preferencias del usuario (también en el usuario de integración, para los mensajes de la API). Si el idioma se instala desde la consola con `--load-language`, Odoo lo carga antes que los módulos y el menú y las vistas del módulo quedan en inglés hasta actualizarlo con `-u shop_integration_api`.
+
 ## Cómo probarlo
 
 ### Pruebas automáticas
@@ -175,13 +186,14 @@ Cada petición a la API, exitosa o fallida, crea un registro en `shop.api.call.l
 ./odoo test prueba_tecnica shop_integration_api -d prueba_limpia
 ```
 
-Son 10 pruebas `HttpCase` que hacen peticiones HTTP reales contra el servidor de pruebas. Cubren:
+Son 14 pruebas `HttpCase` que hacen peticiones HTTP reales contra el servidor de pruebas. Cubren:
 
 - Autenticación: sin clave y con clave inválida.
 - Listado de productos, filtros solos y combinados, y parámetros inválidos.
 - Creación del pedido y los errores de validación, salvo `PRODUCT_AMBIGUOUS`.
 - Usuario sin permisos de ventas: 403 y no se crea el pedido.
 - El registro de llamadas: qué guarda, que un fallo al guardarlo no rompe la respuesta y quién puede leerlo.
+- La traducción (`tests/test_translation.py`): mensajes en el idioma del usuario de la API, el 401 según `Accept-Language`, el origen del pedido y las etiquetas del registro en español.
 
 Durante las pruebas el `dbfilter` expone solo la base de prueba, porque la tienda no envía cookie (ver *Puesta en marcha*, paso 4).
 
@@ -197,6 +209,7 @@ Durante las pruebas el `dbfilter` expone solo la base de prueba, porque la tiend
 - **El pedido queda como cotización.** Así ventas revisa precios, stock y condiciones antes de comprometer inventario. Confirmarlo automáticamente sería llamar a `action_confirm()` después de crearlo.
 - **Odoo es la fuente de verdad de los precios.** La tienda no envía precios; se aplican la lista de precios del cliente y los impuestos del producto.
 - **El RIF se compara tal cual** (solo mayúsculas y espacios en los extremos). `J-12345678-9` y `J123456789` son RIF distintos. Se busca en la ficha comercial del cliente, no en sus contactos, que heredan el RIF.
+- **El idioma de la respuesta** es el del usuario de integración: los mensajes, el origen del pedido y los nombres de los productos, si están traducidos, salen en ese idioma.
 - **El vendedor del pedido** es el asignado al cliente; si el cliente no tiene, queda el usuario de la API. Por eso el usuario de integración necesita ver todos los documentos de ventas (ver *Puesta en marcha*, paso 2).
 - **El código de producto** se compara exacto, distinguiendo mayúsculas y minúsculas (solo se ignoran los espacios en los extremos). Un producto archivado se trata como inexistente.
 - **Las cantidades** van en la unidad de venta del producto.
