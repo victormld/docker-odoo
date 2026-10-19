@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_payment_form_payment_request" model="ir.ui.view">
+        <field name="name">account.payment.form.payment.request</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <!-- Only for those who can see every request: other accountants keep the request number in the memo -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="payment_request_id" invisible="1"
+                       groups="payment_request.group_payment_request_approver,payment_request.group_payment_request_treasury"/>
+                <button name="action_view_payment_request" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                        string="Payment Request" invisible="not payment_request_id"
+                        groups="payment_request.group_payment_request_approver,payment_request.group_payment_request_treasury"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

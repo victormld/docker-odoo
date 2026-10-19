@@ -1,0 +1,23 @@
+{
+    "name": "Payment Requests",
+    "summary": "Supplier payment requests with approval by amount",
+    "version": "18.0.1.1.0",
+    "category": "Accounting/Accounting",
+    "author": "Víctor Maldonado",
+    "license": "LGPL-3",
+    "depends": ["account", "mail"],
+    "data": [
+        "security/payment_request_security.xml",
+        "security/ir.model.access.csv",
+        "data/ir_sequence_data.xml",
+        "views/payment_request_views.xml",
+        "views/payment_approval_level_views.xml",
+        "views/account_payment_views.xml",
+        "wizards/payment_request_payment_wizard_views.xml",
+        "wizards/payment_request_reject_wizard_views.xml",
+        "views/menus.xml",
+        "report/payment_request_report.xml",
+    ],
+    "installable": True,
+    "application": True,
+}

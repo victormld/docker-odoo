@@ -1,0 +1,764 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* payment_request
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20261017\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-19 20:07+0000\n"
+"PO-Revision-Date: 2026-10-19 20:07+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "%s The request is approved again so treasury can pay it."
+msgstr ""
+"%s La solicitud vuelve a estar aprobada para que tesorería la pague de "
+"nuevo."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_approval_level.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_approval_level.py:0
+msgid "%s is not an approver of payment requests."
+msgstr "%s no es aprobador de solicitudes de pago."
+
+#. module: payment_request
+#: model:ir.actions.report,print_report_name:payment_request.action_report_payment_request
+msgid "'Payment Request - %s' % object.name"
+msgstr "'Solicitud de pago - %s' % object.name"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "A payment request cannot be modified once it has been submitted."
+msgstr "Una solicitud de pago no se puede modificar después de enviada."
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_needaction
+msgid "Action Needed"
+msgstr "Se requiere una acción"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_ids
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decoración de la actividad de excepción"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_state
+msgid "Activity State"
+msgstr "Estado de la actividad"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icono del tipo de actividad"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__amount
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__amount
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Amount"
+msgstr "Monto"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Approval"
+msgstr "Aprobación"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__approval_date
+msgid "Approval Date"
+msgstr "Fecha de aprobación"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__approval_level_id
+msgid "Approval Level"
+msgstr "Nivel de aprobación"
+
+#. module: payment_request
+#: model:ir.actions.act_window,name:payment_request.payment_approval_level_action
+#: model:ir.ui.menu,name:payment_request.menu_payment_approval_level
+msgid "Approval Levels"
+msgstr "Niveles de aprobación"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+msgid "Approve"
+msgstr "Aprobar"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Approve or reject payment request %s"
+msgstr "Aprobar o rechazar la solicitud de pago %s"
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__approved
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "Approved"
+msgstr "Aprobada"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Approved by"
+msgstr "Aprobada por"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Approved on"
+msgstr "Aprobada el"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__approver_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__approver_id
+#: model:res.groups,name:payment_request.group_payment_request_approver
+msgid "Approver"
+msgstr "Aprobador"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "Número de archivos adjuntos"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_payment_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_reject_wizard_view_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__company_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__company_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__concept
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Concept"
+msgstr "Concepto"
+
+#. module: payment_request
+#: model:ir.ui.menu,name:payment_request.menu_payment_request_config
+msgid "Configuration"
+msgstr "Configuración"
+
+#. module: payment_request
+#: model_terms:ir.actions.act_window,help:payment_request.payment_request_action
+msgid "Create your first payment request"
+msgstr "Crea tu primera solicitud de pago"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__create_uid
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__create_uid
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__create_uid
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__create_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__create_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__create_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__currency_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__currency_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__date
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Date"
+msgstr "Fecha"
+
+#. module: payment_request
+#: model_terms:ir.actions.act_window,help:payment_request.payment_approval_level_action
+msgid "Define who approves payment requests"
+msgstr "Define quién aprueba las solicitudes de pago"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__display_name
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__display_name
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__display_name
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__draft
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: payment_request
+#: model_terms:ir.actions.act_window,help:payment_request.payment_approval_level_action
+msgid ""
+"Each level applies from a minimum amount, in the company currency, and has one approver.\n"
+"               A request goes to the highest level its amount reaches."
+msgstr ""
+"Cada nivel aplica desde un monto mínimo, en la moneda de la compañía, y tiene un aprobador.\n"
+"               La solicitud va al nivel más alto que alcanza su monto."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid ""
+"Explain why the payment request is rejected: the requester needs to know."
+msgstr ""
+"Explica por qué se rechaza la solicitud de pago: el solicitante necesita "
+"saberlo."
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (contactos)"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icono de Font Awesome ej. fa-tasks"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__has_message
+msgid "Has Message"
+msgstr "Tiene un mensaje"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_exception_icon
+msgid "Icon"
+msgstr "Icono"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icono que indica una actividad de excepción."
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está seleccionado, hay nuevos mensajes que requieren tu atención."
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__message_has_error
+#: model:ir.model.fields,help:payment_request.field_payment_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está seleccionado, algunos mensajes tienen error de envío."
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__in_process
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "In Process"
+msgstr "En proceso"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_is_follower
+msgid "Is Follower"
+msgstr "Es un seguidor"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__journal_id
+msgid "Journal"
+msgstr "Diario"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__write_uid
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__write_uid
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__write_uid
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__write_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__write_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__write_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_has_error
+msgid "Message Delivery error"
+msgstr "Error al enviar el mensaje"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__min_amount
+msgid "Minimum Amount"
+msgstr "Monto mínimo"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Fecha límite de mi actividad"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "My Requests"
+msgstr "Mis solicitudes"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_approval_level__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Siguiente fecha límite de la actividad"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resumen de la siguiente actividad"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipo de la siguiente actividad"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid ""
+"No approval level applies to payment request %s. Ask your administrator to "
+"configure the approval levels."
+msgstr ""
+"Ningún nivel de aprobación aplica a la solicitud de pago %s. Pide al "
+"administrador que configure los niveles de aprobación."
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__name
+msgid "Number"
+msgstr "Número"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de acciones"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número de errores"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensajes que requieren una acción"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de envío"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Only %(approver)s can approve or reject payment request %(request)s."
+msgstr ""
+"Solo %(approver)s puede aprobar o rechazar la solicitud de pago %(request)s."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Only approvers can approve or reject payment requests."
+msgstr "Solo los aprobadores pueden aprobar o rechazar solicitudes de pago."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Only draft payment requests can be deleted."
+msgstr "Solo se pueden eliminar solicitudes de pago en borrador."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Only the requester can submit payment request %s."
+msgstr "Solo el solicitante puede enviar la solicitud de pago %s."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Only treasury can pay payment requests."
+msgstr "Solo tesorería puede pagar solicitudes de pago."
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__paid
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "Paid"
+msgstr "Pagada"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__payment_journal
+msgid "Paid From"
+msgstr "Pagado desde"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Paid from"
+msgstr "Pagado desde"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+msgid "Pay"
+msgstr "Pagar"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+#: model:ir.model,name:payment_request.model_payment_request_payment_wizard
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_payment_wizard_view_form
+msgid "Pay Payment Request"
+msgstr "Pagar solicitud de pago"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__payment_id
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Payment"
+msgstr "Pago"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/account_payment.py:0
+#: code:addons/prueba-tecnica/payment_request/models/account_payment.py:0
+msgid "Payment %(payment)s is now “%(status)s” in accounting."
+msgstr "El pago %(payment)s ahora está “%(status)s” en contabilidad."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/account_payment.py:0
+#: code:addons/prueba-tecnica/payment_request/models/account_payment.py:0
+msgid "Payment %s was deleted in accounting."
+msgstr "El pago %s fue eliminado en contabilidad."
+
+#. module: payment_request
+#: model:ir.model,name:payment_request.model_payment_approval_level
+msgid "Payment Approval Level"
+msgstr "Nivel de aprobación de pagos"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__payment_date
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__payment_date
+msgid "Payment Date"
+msgstr "Fecha del pago"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__payment_reference
+msgid "Payment Reference"
+msgstr "Referencia del pago"
+
+#. module: payment_request
+#: model:ir.actions.report,name:payment_request.action_report_payment_request
+#: model:ir.model,name:payment_request.model_payment_request
+#: model:ir.model.fields,field_description:payment_request.field_account_payment__payment_request_id
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.view_account_payment_form_payment_request
+msgid "Payment Request"
+msgstr "Solicitud de pago"
+
+#. module: payment_request
+#: model:ir.module.module,shortdesc:base.module_payment_request
+#: model:ir.actions.act_window,name:payment_request.payment_request_action
+#: model:ir.module.category,name:payment_request.module_category_payment_request
+#: model:ir.ui.menu,name:payment_request.menu_payment_request
+#: model:ir.ui.menu,name:payment_request.menu_payment_request_root
+msgid "Payment Requests"
+msgstr "Solicitudes de pago"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__payment_state
+msgid "Payment Status"
+msgstr "Estado del pago"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Payment date"
+msgstr "Fecha del pago"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Payment reference"
+msgstr "Referencia del pago"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid ""
+"Payment request %s has no approver other than its requester. Ask your "
+"administrator to configure the approval levels."
+msgstr ""
+"La solicitud de pago %s no tiene un aprobador distinto de su solicitante. "
+"Pide al administrador que configure los niveles de aprobación."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "Payment request rejected. Reason: %s"
+msgstr "Solicitud de pago rechazada. Motivo: %s"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Payment status"
+msgstr "Estado del pago"
+
+#. module: payment_request
+#: model:ir.model,name:payment_request.model_account_payment
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__reason
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Reason"
+msgstr "Motivo"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_payment_wizard_view_form
+msgid "Register Payment"
+msgstr "Registrar pago"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_reject_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+msgid "Reject"
+msgstr "Rechazar"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+#: model:ir.model,name:payment_request.model_payment_request_reject_wizard
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_reject_wizard_view_form
+msgid "Reject Payment Request"
+msgstr "Rechazar solicitud de pago"
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__rejected
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "Rejected"
+msgstr "Rechazada"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Rejected by"
+msgstr "Rechazada por"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Rejection"
+msgstr "Rechazo"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__rejection_reason
+msgid "Rejection Reason"
+msgstr "Motivo del rechazo"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__request_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_reject_wizard__request_id
+msgid "Request"
+msgstr "Solicitud"
+
+#. module: payment_request
+#: model_terms:ir.actions.act_window,help:payment_request.payment_request_action
+msgid ""
+"Request a supplier payment; it will be approved according to its amount and "
+"paid by treasury."
+msgstr ""
+"Solicita un pago a un proveedor: se aprueba según su monto y lo paga "
+"tesorería."
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__requester_id
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Requested by"
+msgstr "Solicitado por"
+
+#. module: payment_request
+#: model:res.groups,name:payment_request.group_payment_request_user
+msgid "Requester"
+msgstr "Solicitante"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_approval_level__min_amount
+msgid ""
+"Requests whose amount, converted to the company currency, reaches this value"
+" use this level."
+msgstr ""
+"Las solicitudes cuyo monto, convertido a la moneda de la compañía, alcanza "
+"este valor usan este nivel."
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario responsable"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error en el envío del SMS"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__state
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Status"
+msgstr "Estado"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Estado según las actividades\n"
+"Vencida: ya pasó la fecha límite\n"
+"Hoy: hoy es la fecha de la actividad\n"
+"Planeada: futuras actividades."
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+msgid "Submit"
+msgstr "Enviar"
+
+#. module: payment_request
+#: model:ir.model.fields.selection,name:payment_request.selection__payment_request__state__submitted
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "Submitted"
+msgstr "Enviada"
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__partner_id
+#: model:ir.model.fields,field_description:payment_request.field_payment_request_payment_wizard__partner_id
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+#: model_terms:ir.ui.view,arch_db:payment_request.report_payment_request
+msgid "Supplier"
+msgstr "Proveedor"
+
+#. module: payment_request
+#: model:ir.module.module,summary:base.module_payment_request
+msgid "Supplier payment requests with approval by amount"
+msgstr "Solicitudes de pago a proveedores con aprobación por monto"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "The amount must be greater than zero."
+msgstr "El monto debe ser mayor que cero."
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_approval_level.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_approval_level.py:0
+msgid "The minimum amount of an approval level cannot be negative."
+msgstr "El monto mínimo de un nivel de aprobación no puede ser negativo."
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_reject_wizard_view_form
+msgid "The requester will receive this explanation"
+msgstr "El solicitante recibirá esta explicación"
+
+#. module: payment_request
+#. odoo-python
+#: code:addons/payment_request/models/payment_request.py:0
+#: code:addons/prueba-tecnica/payment_request/models/payment_request.py:0
+msgid "This action is not available for %s in its current status."
+msgstr "Esta acción no está disponible para %s en su estado actual."
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_search
+msgid "To Approve"
+msgstr "Por aprobar"
+
+#. module: payment_request
+#: model:res.groups,name:payment_request.group_payment_request_treasury
+msgid "Treasury"
+msgstr "Tesorería"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipo de la actividad de excepción registrada."
+
+#. module: payment_request
+#: model:ir.model.fields,field_description:payment_request.field_payment_request__website_message_ids
+msgid "Website Messages"
+msgstr "Mensajes del sitio web"
+
+#. module: payment_request
+#: model:ir.model.fields,help:payment_request.field_payment_request__website_message_ids
+msgid "Website communication history"
+msgstr "Historial de comunicación del sitio web"
+
+#. module: payment_request
+#: model_terms:ir.ui.view,arch_db:payment_request.payment_request_view_form
+msgid "What is being paid and why"
+msgstr "Qué se paga y por qué"
