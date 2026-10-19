@@ -20,6 +20,11 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
             cls.env, login="flow_treasury", name="Flow Treasury",
             groups="base.group_user,payment_request.group_payment_request_treasury",
         )
+        # Accounting without payment request roles: sees only its own requests
+        cls.accountant = new_test_user(
+            cls.env, login="flow_accountant", name="Flow Accountant",
+            groups="base.group_user,account.group_account_invoice",
+        )
         cls.supplier = cls.env["res.partner"].create({"name": "Flow Supplier"})
         Level = cls.env["payment.approval.level"]
         cls.area_level = Level.create({"name": "Area", "min_amount": 0.0, "approver_id": cls.area_head.id})
@@ -42,10 +47,11 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
         request.with_user(request.approver_id).action_approve()
         return request
 
-    def _pay(self, request):
+    def _pay(self, request, **vals):
         self.env["payment.request.payment.wizard"].with_user(self.treasury).create({
             "request_id": request.id,
             "journal_id": self.company_data["default_journal_bank"].id,
+            **vals,
         }).action_pay()
 
     # -- approval levels
@@ -125,7 +131,9 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
 
     def test_payment_creates_posted_supplier_payment(self):
         request = self._approved_request()
-        self._pay(request)
+        journal = self.company_data["default_journal_cash"]
+        payment_date = fields.Date.add(fields.Date.today(), days=1)
+        self._pay(request, journal_id=journal.id, payment_date=payment_date)
         payment = request.payment_id
         self.assertEqual(request.state, "paid")
         self.assertIn(payment.state, ("in_process", "paid"), "The payment is posted")
@@ -133,17 +141,67 @@ class TestApprovalFlow(AccountTestInvoicingCommon):
             (payment.payment_type, payment.partner_type, payment.partner_id, payment.amount, payment.currency_id),
             ("outbound", "supplier", self.supplier, 500.0, request.currency_id),
         )
+        self.assertEqual((payment.journal_id, payment.date), (journal, payment_date), "Journal and date from the wizard")
         self.assertEqual(payment.memo, request.name)
-        # The requester sees the payment data without accounting rights
-        self.assertEqual(request.with_user(self.requester).payment_reference, payment.name)
+        # The requester sees the payment data and its accounting status without accounting rights
+        as_requester = request.with_user(self.requester)
+        self.assertEqual((as_requester.payment_reference, as_requester.payment_state), (payment.name, payment.state))
 
-    def test_treasury_opens_payment_wizard_and_payment(self):
+    def test_payment_and_request_are_linked_both_ways(self):
         request = self._approved_request()
         action = request.with_user(self.treasury).action_open_payment_wizard()
         self.assertEqual(action["res_model"], "payment.request.payment.wizard")
         self._pay(request)
+        payment = request.payment_id
+        self.assertEqual(payment.payment_request_id, request)
         action = request.with_user(self.treasury).action_view_payment()
-        self.assertEqual((action["res_model"], action["res_id"]), ("account.payment", request.payment_id.id))
+        self.assertEqual((action["res_model"], action["res_id"]), ("account.payment", payment.id))
+        action = payment.with_user(self.treasury).action_view_payment_request()
+        self.assertEqual((action["res_model"], action["res_id"]), ("payment.request", request.id))
+
+    def test_payment_form_shows_request_button_to_its_roles(self):
+        for user, visible in ((self.treasury, True), (self.accountant, False)):
+            with self.subTest(user=user.login):
+                views = self.env["account.payment"].with_user(user).get_views([(False, "form")])
+                self.assertEqual("action_view_payment_request" in views["views"]["form"]["arch"], visible)
+
+    def test_cancelled_or_rejected_payment_reopens_request(self):
+        for action in ("action_cancel", "action_reject"):
+            with self.subTest(action=action):
+                request = self._approved_request()
+                self._pay(request)
+                payment = request.payment_id.with_user(self.accountant)
+                payment_name = payment.name
+                # Done in accounting by someone who cannot see the request
+                getattr(payment, action)()
+                self.assertEqual((request.state, request.payment_id), ("approved", self.env["account.payment"]))
+                self.assertEqual(payment.payment_request_id, request, "The payment keeps its link for the record")
+                self.assertTrue(request.message_ids.filtered(lambda message: payment_name in str(message.body)))
+                # Treasury pays it again with a new payment
+                self._pay(request)
+                self.assertEqual(request.state, "paid")
+                self.assertNotEqual(request.payment_id, payment)
+
+    def test_payment_reset_to_draft_keeps_request_until_deleted(self):
+        request = self._approved_request()
+        self._pay(request)
+        payment = request.payment_id.with_user(self.accountant)
+        # Reset to draft to be corrected and posted again: the request keeps it
+        payment.action_draft()
+        self.assertEqual((request.state, request.payment_state), ("paid", "draft"))
+        payment.unlink()
+        self.assertEqual((request.state, request.payment_id), ("approved", self.env["account.payment"]))
+
+    def test_replaced_payment_no_longer_affects_request(self):
+        request = self._approved_request()
+        self._pay(request)
+        old_payment = request.payment_id.with_user(self.accountant)
+        old_payment.action_reject()
+        self._pay(request)
+        # Accounting later cancels the rejected payment: the new one still pays the request
+        old_payment.action_cancel()
+        self.assertEqual(request.state, "paid", "Only the payment currently linked counts")
+        self.assertNotEqual(request.payment_id, old_payment)
 
     def test_request_cannot_be_paid_twice(self):
         request = self._approved_request()
