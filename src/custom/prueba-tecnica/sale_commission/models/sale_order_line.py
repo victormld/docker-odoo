@@ -23,7 +23,7 @@ class SaleOrderLine(models.Model):
             line.commission_amount = line.price_subtotal * line.commission_percent / 100.0
 
     def _get_commission_percent(self):
-        """Porcentaje de la categoría del producto (la más específica) o, si no hay, el del vendedor."""
+        """Porcentaje de la categoría del producto (la más específica) o, si no hay, el del vendedor del pedido."""
         self.ensure_one()
         rules = self.env["sale.commission.rule"].search([
             ("categ_id", "parent_of", self.product_id.categ_id.id),
@@ -31,4 +31,4 @@ class SaleOrderLine(models.Model):
         ])
         if rules:
             return rules.sorted(lambda r: len(r.categ_id.parent_path or ""), reverse=True)[0].percent
-        return self.env.user.commission_percent
+        return self.order_id.user_id.commission_percent
